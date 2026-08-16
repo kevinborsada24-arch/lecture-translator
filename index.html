@@ -416,7 +416,9 @@ const GENERAL_RULES = [
   ["dys rhythmia", "dysrhythmia"],
   ["dys pnea", "dyspnea"],
   ["leuko cytes", "leukocytes"],
-  ["erythro cytes", "erythrocytes"]
+  ["erythro cytes", "erythrocytes"],
+  ["homostasis", "homeostasis"],
+  ["homostatus", "homeostasis"]
 ];
 
 const ABBREVIATIONS = {
@@ -503,16 +505,23 @@ function extractTranscript(text) {
   // Format 2: video-player transcript panel export (e.g. YouTube Studio,
   // Panopto) - plain "Transcript" / "Search transcript" heading, with
   // everything above it being title/duration/player chrome, not speech.
+  // Only look near the top - if a stray "Transcript" label got copied in
+  // again at the very end (easy to do when selecting text from these
+  // panels), treating that as the marker would wipe out the whole body.
   const plainMarker = /^\s*(search transcript|transcript)\s*$/im;
   if (plainMarker.test(text)) {
     const lines = text.split(/\r?\n/);
+    const searchLimit = Math.min(lines.length, 20);
     let startIdx = 0;
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0; i < searchLimit; i++) {
       if (/^\s*(search transcript|transcript)\s*$/i.test(lines[i])) startIdx = i + 1;
     }
     text = lines.slice(startIdx).join("\n");
   }
 
+  // Strip a stray trailing "Transcript" / "Search transcript" label some
+  // copies pick up at the very end, plus other trailing player chrome.
+  text = text.replace(/^\s*(search transcript|transcript)\s*$/gim, "");
   text = text.replace(/^\s*transcript segment selected at.*$/gim, "");
   return text;
 }
@@ -595,6 +604,21 @@ function levenshtein(a, b) {
 }
 
 async function loadMedicalDictionary() {
+  const CACHE_KEY = "lectureCleanerDictCacheV1";
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const entries = JSON.parse(cached);
+      soundexIndex = new Map(entries);
+      medicalTerms = new Set();
+      for (const [, terms] of entries) for (const t of terms) medicalTerms.add(t);
+      els.dictStatus.textContent = `Medical term dictionary loaded (${medicalTerms.size.toLocaleString()} terms, cached).`;
+      return;
+    }
+  } catch {
+    // corrupted cache - fall through and rebuild from scratch
+  }
+
   try {
     const res = await fetch("medical-terms.json");
     const list = await res.json();
@@ -606,6 +630,11 @@ async function loadMedicalDictionary() {
       soundexIndex.get(code).push(term);
     }
     els.dictStatus.textContent = `Medical term dictionary loaded (${list.length.toLocaleString()} terms).`;
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify([...soundexIndex.entries()]));
+    } catch {
+      // localStorage full or unavailable - not fatal, just skip caching
+    }
   } catch (e) {
     els.dictStatus.innerHTML = `<span class="warn">Could not load medical-terms.json &mdash; term-flagging disabled. Make sure it's in the same folder as index.html.</span>`;
     medicalTerms = new Set();
@@ -747,6 +776,12 @@ function renderRules() {
   });
 }
 
+function deepCloneRules(arr) {
+  // Avoid structuredClone - unsupported in older Safari/WebViews, and a
+  // failure there was cascading into breaking everything loaded after it.
+  return JSON.parse(JSON.stringify(arr));
+}
+
 function saveRules() {
   localStorage.setItem("lectureCleanerRules", JSON.stringify(rules));
 }
@@ -755,9 +790,9 @@ function loadRules() {
     const saved = JSON.parse(localStorage.getItem("lectureCleanerRules") || "null");
     rules = Array.isArray(saved) && saved.length
       ? saved
-      : [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
+      : [...deepCloneRules(GENERAL_RULES), ...deepCloneRules(DEFAULT_RULES)];
   } catch {
-    rules = [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
+    rules = [...deepCloneRules(GENERAL_RULES), ...deepCloneRules(DEFAULT_RULES)];
   }
 }
 function exportRules() {
@@ -1030,7 +1065,7 @@ els.cleanBtn.addEventListener("click", () => {
 
 els.addRule.addEventListener("click", () => { rules.push(["", ""]); renderRules(); });
 els.resetRules.addEventListener("click", () => {
-  rules = [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
+  rules = [...deepCloneRules(GENERAL_RULES), ...deepCloneRules(DEFAULT_RULES)];
   saveRules(); renderRules();
 });
 els.exportRules.addEventListener("click", exportRules);
