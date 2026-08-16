@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lecture Transcript Cleaner</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1f2430;
+      --text: #f4f7fb;
+      --muted: #a9b1bd;
+      --border: #303847;
+      --accent: #7c9cff;
+      --accent-2: #9bb0ff;
+      --danger: #ff7b7b;
+      --success: #7ee2a8;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #0d1015 0%, #121722 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: -0.03em;
+    }
+    .sub {
+      color: var(--muted);
+      max-width: 780px;
+      line-height: 1.55;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: rgba(23,26,33,.95);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      background: #10141b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      outline: none;
+      font: inherit;
+    }
+    textarea {
+      min-height: 440px;
+      resize: vertical;
+      line-height: 1.5;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,156,255,.15);
+    }
+    .drop {
+      border: 1px dashed #52607a;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      background: #111722;
+      margin-bottom: 14px;
+    }
+    .drop.drag {
+      border-color: var(--accent);
+      background: #15203a;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    button, .fake-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 14px;
+      background: var(--panel-2);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--accent);
+      border-color: transparent;
+      color: #0c1020;
+    }
+    button:hover, .fake-btn:hover {
+      filter: brightness(1.06);
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 20px;
+    }
+    .ok { color: var(--success); }
+    .warn { color: #ffd37e; }
+    .bad { color: var(--danger); }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--muted);
+      background: #111722;
+      border: 1px solid var(--border);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    details {
+      margin-top: 18px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .rules {
+      max-height: 260px;
+      overflow: auto;
+      background: #10141b;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 12px;
+    }
+    .rule {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .rule input {
+      min-width: 0;
+    }
+    .rule button {
+      padding: 8px 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Lecture Transcript Cleaner</h1>
+      <div class="sub">
+        Drop in a Buzz/Whisper <strong>.md</strong> or <strong>.txt</strong> transcript, clean common medical speech-to-text errors, keep timestamps, and download a cleaned transcript. Everything runs locally in your browser.
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1. Load transcript</h2>
+
+        <div id="drop" class="drop">
+          <div><strong>Drop your transcript here</strong></div>
+          <div class="small" style="margin-top:6px">or choose a .md / .txt file</div>
+          <div class="buttons" style="justify-content:center">
+            <label class="fake-btn">
+              Choose file
+              <input id="fileInput" type="file" accept=".md,.txt,text/plain,text/markdown" hidden />
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="title">Lecture title</label>
+            <input id="title" type="text" placeholder="Chapter 7 - Neoplasia" />
+          </div>
+          <button id="cleanBtn" class="primary">Clean transcript</button>
+        </div>
+
+        <label for="inputText">Raw transcript</label>
+        <textarea id="inputText" placeholder="Paste Buzz/Whisper transcript here..."></textarea>
+
+        <label style="display:flex; align-items:center; gap:8px; margin-top:12px; cursor:pointer;">
+          <input type="checkbox" id="stripFillers" checked style="width:auto; margin:0;" />
+          <span style="color: var(--text); font-size: 14px;">Strip filler words (um, uh, kinda, you know...)</span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer;">
+          <input type="checkbox" id="findUnknownTerms" checked style="width:auto; margin:0;" />
+          <span style="color: var(--text); font-size: 14px;">Flag words that look like mis-transcribed medical terms</span>
+        </label>
+        <div class="small" id="dictStatus" style="margin-top:4px;">Loading medical term dictionary&hellip;</div>
+
+        <div id="status" class="status"></div>
+
+        <details>
+          <summary>Custom correction rules</summary>
+          <p class="small">
+            Add recurring mistakes from your professor. Rules are case-insensitive and applied as whole-word/phrase replacements.
+            Export your rules to <code>rules.json</code> and commit it to the repo so they carry over to any device &mdash;
+            localStorage alone won't sync between your laptop and phone.
+          </p>
+          <div id="rules" class="rules"></div>
+          <div class="buttons">
+            <button id="addRule">+ Add rule</button>
+            <button id="resetRules">Reset defaults</button>
+            <button id="exportRules">Export rules.json</button>
+            <label class="fake-btn">
+              Import rules.json
+              <input id="importRulesInput" type="file" accept=".json,application/json" hidden />
+            </label>
+          </div>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>2. Cleaned transcript</h2>
+
+        <div>
+          <span class="pill">Keeps timestamps</span>
+          <span class="pill">Fixes ASR term errors</span>
+          <span class="pill">Strips filler words</span>
+          <span class="pill">No upload, runs locally</span>
+        </div>
+
+        <label for="outputText" style="margin-top:14px">Output</label>
+        <textarea id="outputText" placeholder="Cleaned transcript will appear here..." readonly></textarea>
+
+        <div id="suggestions" style="margin-top:14px;"></div>
+
+        <div class="buttons">
+          <button id="copyBtn">Copy</button>
+          <button id="downloadMd" class="primary">Download .md</button>
+          <button id="downloadTxt">Download .txt</button>
+        </div>
+
+        <div class="small" style="margin-top:14px">
+          This tool only performs text replacement and light cleanup. It does not listen to the original audio, so ambiguous errors still need human review.
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script>
+const DEFAULT_RULES = [
+  ["neoplagio", "neoplasia"],
+  ["neoplagia", "neoplasia"],
+  ["neuroplastic growth", "neoplastic growth"],
+  ["no plastic growth", "neoplastic growth"],
+  ["two more", "tumor"],
+  ["malignant tomorrow", "malignant tumor"],
+  ["cytoplasma", "cytoplasm"],
+  ["an apologia", "anaplasia"],
+  ["calcasia", "cachexia"],
+  ["caucasia", "cachexia"],
+
+  ["tumor super surgeons", "tumor suppressor genes"],
+  ["tumor suppressors genes", "tumor suppressor genes"],
+  ["proto on cogent", "proto-oncogene"],
+  ["proton cogen", "proto-oncogene"],
+  ["proton cogens", "proto-oncogenes"],
+  ["proto oncogenes", "proto-oncogenes"],
+  ["proto oncogen", "proto-oncogene"],
+  ["proto-oncogens", "proto-oncogenes"],
+  ["cell prophylactions", "cell proliferation"],
+  ["prophylactions", "proliferation"],
+  ["transcriptions factors", "transcription factors"],
+  ["transcriptions factor", "transcription factor"],
+  ["growth factors receptors", "growth factor receptors"],
+  ["hair too", "HER2"],
+  ["hair two", "HER2"],
+  ["ras rest", "RAS"],
+  ["rast gene", "RAS gene"],
+  ["retinoplastoma", "retinoblastoma"],
+  ["p3 gene", "p53 gene"],
+  ["p3", "p53"],
+  ["p50", "p53"],
+  ["cycling dependent kinase", "cyclin-dependent kinase"],
+  ["cyclic dependent kindness", "cyclin-dependent kinase"],
+
+  ["keposis or", "Kaposi sarcoma"],
+  ["cone if standby virus", "Epstein-Barr virus"],
+  ["perked lymphoma", "Burkitt lymphoma"],
+  ["myotogenic events", "mutagenic events"],
+
+  ["hypercalcimia", "hypercalcemia"],
+  ["hypercast you", "hypercalcemia"],
+  ["caution syndrome", "Cushing syndrome"],
+  ["a cth", "ACTH"],
+  ["adhd", "ADH"],
+  ["thrombosis cytokine", "thrombocytopenia"],
+  ["sloughing of mucous mucus on membrane", "sloughing of mucous membrane"],
+  ["nausea receptors", "nociceptors"],
+  ["energetics painkiller", "analgesic painkiller"],
+
+  ["stem cell transfer plantation", "stem cell transplantation"],
+  ["radiations therapy", "radiation therapy"],
+  ["radiation throughput therapy", "radiation therapy"],
+  ["bone marrow suspicions", "bone marrow suppression"],
+  ["bone marrow suspicion suppression", "bone marrow suppression"],
+  ["androgens genesis", "angiogenesis"],
+  ["interlockings", "interleukins"],
+  ["interlooking too", "interleukin-2"],
+  ["interlooking", "interleukin"],
+  ["immunotrophy", "immunotherapy"],
+  ["proto-oncogen", "proto-oncogene"],
+  ["proton cogen", "proto-oncogene"],
+  ["interlocking", "interleukin"],
+  ["interlockings", "interleukins"],
+  ["hair to", "HER2"],
+  ["fox", "folks"]
+];
+
+// General pathophysiology terms that come up across most chapters,
+// not tied to any single lecture topic. Add to this list all semester.
+const GENERAL_RULES = [
+  ["high per tension", "hypertension"],
+  ["hyper tension", "hypertension"],
+  ["hypo tension", "hypotension"],
+  ["tachy cardia", "tachycardia"],
+  ["brady cardia", "bradycardia"],
+  ["cardio myopathy", "cardiomyopathy"],
+  ["cardio vascular", "cardiovascular"],
+  ["athero sclerosis", "atherosclerosis"],
+  ["arterio sclerosis", "arteriosclerosis"],
+  ["isschemia", "ischemia"],
+  ["iskemia", "ischemia"],
+  ["infarcshun", "infarction"],
+  ["edema tous", "edematous"],
+  ["throm bosis", "thrombosis"],
+  ["embo lism", "embolism"],
+  ["hemo stasis", "hemostasis"],
+  ["homeo stasis", "homeostasis"],
+  ["gluco neogenesis", "gluconeogenesis"],
+  ["glyco lysis", "glycolysis"],
+  ["keto acidosis", "ketoacidosis"],
+  ["nephro pathy", "nephropathy"],
+  ["neuro pathy", "neuropathy"],
+  ["retino pathy", "retinopathy"],
+  ["hepato megaly", "hepatomegaly"],
+  ["spleno megaly", "splenomegaly"],
+  ["cardio megaly", "cardiomegaly"],
+  ["dys rhythmia", "dysrhythmia"],
+  ["dys pnea", "dyspnea"],
+  ["leuko cytes", "leukocytes"],
+  ["erythro cytes", "erythrocytes"]
+];
+
+const ABBREVIATIONS = {
+  "dna": "DNA",
+  "rna": "RNA",
+  "mrna": "mRNA",
+  "atp": "ATP",
+  "gtp": "GTP",
+  "egf": "EGF",
+  "hiv": "HIV",
+  "tnm": "TNM",
+  "gi": "GI",
+  "adh": "ADH",
+  "acth": "ACTH",
+  "rb": "RB",
+  "copd": "COPD",
+  "gerd": "GERD",
+  "dka": "DKA",
+  "chf": "CHF",
+  "cva": "CVA",
+  "uti": "UTI"
+};
+
+// Filler words/phrases stripped when "Strip filler words" is checked.
+// Longer phrases listed first so they match before their sub-pieces do.
+const FILLERS = [
+  "you know what i mean",
+  "if that makes sense",
+  "kind of like",
+  "sort of like",
+  "you know",
+  "i mean",
+  "like i said",
+  "um",
+  "uh",
+  "uhh",
+  "umm",
+  "uh huh",
+  "mm hmm",
+  "kinda",
+  "sorta",
+  "okay so",
+  "so yeah"
+];
+
+let rules = [];
+
+const els = {
+  fileInput: document.getElementById("fileInput"),
+  inputText: document.getElementById("inputText"),
+  outputText: document.getElementById("outputText"),
+  title: document.getElementById("title"),
+  cleanBtn: document.getElementById("cleanBtn"),
+  status: document.getElementById("status"),
+  drop: document.getElementById("drop"),
+  rules: document.getElementById("rules"),
+  addRule: document.getElementById("addRule"),
+  resetRules: document.getElementById("resetRules"),
+  copyBtn: document.getElementById("copyBtn"),
+  downloadMd: document.getElementById("downloadMd"),
+  downloadTxt: document.getElementById("downloadTxt"),
+  stripFillers: document.getElementById("stripFillers"),
+  exportRules: document.getElementById("exportRules"),
+  importRulesInput: document.getElementById("importRulesInput"),
+  findUnknownTerms: document.getElementById("findUnknownTerms"),
+  dictStatus: document.getElementById("dictStatus"),
+  suggestions: document.getElementById("suggestions")
+};
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractTranscript(text) {
+  // Format 1: Google Classroom / Buzz export - marked with "## Transcript"
+  const mdMarker = /##\s*Transcript/i;
+  if (mdMarker.test(text)) {
+    const parts = text.split(mdMarker);
+    let body = parts.slice(1).join("## Transcript");
+    body = body
+      .split(/\r?\n/)
+      .filter(line => !/Link copied at/i.test(line))
+      .filter(line => line.trim() !== "##")
+      .join("\n");
+    return body;
+  }
+
+  // Format 2: video-player transcript panel export (e.g. YouTube Studio,
+  // Panopto) - plain "Transcript" / "Search transcript" heading, with
+  // everything above it being title/duration/player chrome, not speech.
+  const plainMarker = /^\s*(search transcript|transcript)\s*$/im;
+  if (plainMarker.test(text)) {
+    const lines = text.split(/\r?\n/);
+    let startIdx = 0;
+    for (let i = 0; i < lines.length; i++) {
+      if (/^\s*(search transcript|transcript)\s*$/i.test(lines[i])) startIdx = i + 1;
+    }
+    text = lines.slice(startIdx).join("\n");
+  }
+
+  // Strip trailing player chrome some exports leave at the very end,
+  // regardless of which header format was detected above.
+  text = text.replace(/^\s*transcript segment selected at.*$/gim, "");
+
+  return text;
+}
+
+function stripFillers(text) {
+  for (const phrase of FILLERS) {
+    const re = new RegExp("\\b" + escapeRegex(phrase) + "\\b", "gi");
+    text = text.replace(re, "");
+  }
+  // collapse stray commas/spaces left behind, but keep it line-aware
+  // so timestamp lines don't get mangled
+  return text
+    .split(/\r?\n/)
+    .map(line => line
+      .replace(/[ \t]+/g, " ")
+      .replace(/\s+([,.!?;:])/g, "$1")
+      .replace(/(,\s*){2,}/g, ", ")
+      .replace(/,\s*\./g, ".")
+      .trim()
+    )
+    .join("\n");
+}
+
+function collapseStutters(text) {
+  return text.replace(/\b(\w+)( \1\b)+/gi, "$1");
+}
+
+// ---- Medical term dictionary + fuzzy matching ----
+// Dictionary source: github.com/glutanimate/wordlist-medicalterms-en (GPL-3.0),
+// merged from OpenMedSpel and MTH-Med-Spel-Chek. 92k+ terms: drug names,
+// anatomy, ICD-9, DSM-IV, general medicine. Attribution kept in README.
+let medicalTerms = null;      // Set of known-good terms
+let soundexIndex = null;      // Map soundexCode -> [terms]
+
+// A short list of ordinary high-frequency English words, so we don't flag
+// "patient," "because," "system" etc. as unrecognized medical terms.
+const COMMON_WORDS = new Set(`the a an and or but if so to of in on at for with
+without by from as is are was were be been being this that these those it its
+they them their he she his her we us our you your i my me not no yes do does
+did have has had can could will would should may might must about into over
+under after before during through between among each other some any all more
+most less least very just also than then when where why how what who which
+one two three first second next last time day year way thing things people
+person student professor lecture class chapter today going know think said
+says say tell told make made get got take took give gave come came go went
+see saw look looked show shown talk talking basically actually right okay
+patient patients body case cases example examples question questions answer
+answers point points part parts type types level levels stage stages normal
+abnormal cause causes result results effect effects change changes different
+similar same important main basic general specific common rare often always
+never usually sometimes because since while although however therefore thus
+means meaning called known called known related response responds develop
+develops leads leading occurs occur present presents happens happen`.split(/\s+/));
+
+function soundex(word) {
+  word = word.toUpperCase().replace(/[^A-Z]/g, "");
+  if (!word) return "";
+  const codes = { B:1,F:1,P:1,V:1, C:2,G:2,J:2,K:2,Q:2,S:2,X:2,Z:2, D:3,T:3, L:4, M:5,N:5, R:6 };
+  let first = word[0];
+  let result = first;
+  let prevCode = codes[first] || 0;
+  for (let i = 1; i < word.length && result.length < 4; i++) {
+    const code = codes[word[i]] || 0;
+    if (code !== 0 && code !== prevCode) result += code;
+    if (word[i] !== "H" && word[i] !== "W") prevCode = code;
+  }
+  return (result + "000").slice(0, 4);
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  let prev = Array(n + 1).fill(0).map((_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const curr = [i];
+    for (let j = 1; j <= n; j++) {
+      curr[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : 1 + Math.min(prev[j - 1], prev[j], curr[j - 1]);
+    }
+    prev = curr;
+  }
+  return prev[n];
+}
+
+async function loadMedicalDictionary() {
+  try {
+    const res = await fetch("medical-terms.json");
+    const list = await res.json();
+    medicalTerms = new Set(list);
+    soundexIndex = new Map();
+    for (const term of list) {
+      const code = soundex(term);
+      if (!soundexIndex.has(code)) soundexIndex.set(code, []);
+      soundexIndex.get(code).push(term);
+    }
+    els.dictStatus.textContent = `Medical term dictionary loaded (${list.length.toLocaleString()} terms).`;
+  } catch (e) {
+    els.dictStatus.innerHTML = `<span class="warn">Could not load medical-terms.json &mdash; term-flagging disabled. Make sure it's in the same folder as index.html.</span>`;
+    medicalTerms = new Set();
+    soundexIndex = new Map();
+  }
+}
+
+function loadIgnoredWords() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("lectureCleanerIgnoredWords") || "[]");
+    return new Set(Array.isArray(saved) ? saved : []);
+  } catch {
+    return new Set();
+  }
+}
+
+let ignoredWords = loadIgnoredWords();
+
+function saveIgnoredWords() {
+  localStorage.setItem("lectureCleanerIgnoredWords", JSON.stringify([...ignoredWords]));
+}
+
+function sameStem(a, b) {
+  // Treats "cancers"/"cancer" or "stimulated"/"stimulate" as the same word,
+  // not a correction - the static dictionary only has base forms, so plain
+  // pluralization/tense would otherwise get flagged as "wrong."
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  const shorter = Math.min(a.length, b.length);
+  return (shorter - i) <= 3;
+}
+
+function findSuggestions(text) {
+  if (!medicalTerms || medicalTerms.size === 0) return [];
+  const seen = new Set();
+  const suggestions = [];
+  const words = text.match(/[A-Za-z][A-Za-z\-]{4,}/g) || [];
+
+  for (const raw of words) {
+    const word = raw.toLowerCase();
+    if (seen.has(word)) continue;
+    if (medicalTerms.has(word)) continue;      // already a known good term
+    if (COMMON_WORDS.has(word)) continue;       // ordinary English, skip
+    if (ignoredWords.has(word)) continue;       // you already dismissed this one
+    seen.add(word);
+
+    const code = soundex(word);
+    const candidates = soundexIndex.get(code) || [];
+    let best = null, bestDist = Infinity;
+    for (const candidate of candidates) {
+      if (Math.abs(candidate.length - word.length) > 3) continue;
+      const dist = levenshtein(word, candidate);
+      if (dist < bestDist) { bestDist = dist; best = candidate; }
+    }
+    // Only suggest close, plausible matches - keeps false positives down.
+    // Short words match tons of unrelated dictionary entries at distance 1,
+    // so require more letters and, for shorter words, an exact-length match.
+    if (word.length < 7) continue;
+    const threshold = word.length <= 9 ? 1 : 2;
+    if (best && bestDist > 0 && bestDist <= threshold && !sameStem(word, best)) {
+      suggestions.push({ word: raw, suggestion: best, distance: bestDist });
+    }
+  }
+
+  return suggestions.sort((a, b) => a.distance - b.distance).slice(0, 20);
+}
+
+function renderSuggestions(suggestions) {
+  const box = els.suggestions;
+  if (!suggestions.length) {
+    box.innerHTML = "";
+    return;
+  }
+  const rows = suggestions.map((s, i) => `
+    <div class="rule" style="grid-template-columns: 1fr 1fr auto auto;">
+      <span class="small" style="align-self:center;">${s.word}</span>
+      <span class="small" style="align-self:center; color: var(--accent-2);">&rarr; ${s.suggestion}</span>
+      <button data-idx="${i}" class="acceptSuggestion">Add rule</button>
+      <button data-idx="${i}" class="ignoreSuggestion" title="Not a medical term, stop flagging it">Ignore</button>
+    </div>
+  `).join("");
+  box.innerHTML = `
+    <details open>
+      <summary>Possible term corrections (${suggestions.length})</summary>
+      <p class="small">Words not found in the medical dictionary, with the closest real term by sound.
+        These are NOT auto-applied. Click "Add rule" for real ones &mdash; it adds a correction rule and re-cleans.
+        Click "Ignore" for ordinary words or names so they stop showing up here.</p>
+      <div class="rules">${rows}</div>
+    </details>
+  `;
+  box.querySelectorAll(".acceptSuggestion").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const s = suggestions[Number(btn.dataset.idx)];
+      rules.push([s.word, s.suggestion]);
+      saveRules();
+      renderRules();
+      btn.disabled = true;
+      btn.textContent = "Added";
+      els.outputText.value = cleanTranscript(els.inputText.value);
+    });
+  });
+  box.querySelectorAll(".ignoreSuggestion").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const s = suggestions[Number(btn.dataset.idx)];
+      ignoredWords.add(s.word.toLowerCase());
+      saveIgnoredWords();
+      btn.closest(".rule").remove();
+    });
+  });
+}
+
+function cleanTranscript(text) {
+  let out = extractTranscript(text);
+
+  if (els.stripFillers.checked) {
+    out = stripFillers(out);
+    out = collapseStutters(out);
+  }
+
+  for (const [from, to] of rules) {
+    if (!from.trim()) continue;
+    const re = new RegExp("\\b" + escapeRegex(from.trim()) + "\\b", "gi");
+    out = out.replace(re, to);
+  }
+
+  for (const [term, replacement] of Object.entries(ABBREVIATIONS)) {
+    const re = new RegExp("\\b" + escapeRegex(term) + "\\b", "gi");
+    out = out.replace(re, replacement);
+  }
+
+  // A correction can turn adjacent mis-transcribed variants into literal
+  // repeats (e.g. "hair too hair two hair to" -> "HER2 HER2 HER2").
+  // Collapse those too, now that they match exactly.
+  out = collapseStutters(out);
+
+  out = out.replace(/\n{3,}/g, "\n\n").trim();
+  return out;
+}
+
+function renderRules() {
+  els.rules.innerHTML = "";
+  rules.forEach((rule, i) => {
+    const row = document.createElement("div");
+    row.className = "rule";
+
+    const from = document.createElement("input");
+    from.type = "text";
+    from.value = rule[0];
+    from.placeholder = "Buzz heard...";
+    from.addEventListener("input", e => rules[i][0] = e.target.value);
+
+    const to = document.createElement("input");
+    to.type = "text";
+    to.value = rule[1];
+    to.placeholder = "Replace with...";
+    to.addEventListener("input", e => rules[i][1] = e.target.value);
+
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.title = "Delete rule";
+    del.addEventListener("click", () => {
+      rules.splice(i, 1);
+      saveRules();
+      renderRules();
+    });
+
+    row.append(from, to, del);
+    els.rules.appendChild(row);
+  });
+}
+
+function saveRules() {
+  localStorage.setItem("lectureCleanerRules", JSON.stringify(rules));
+}
+
+function loadRules() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("lectureCleanerRules") || "null");
+    rules = Array.isArray(saved) && saved.length
+      ? saved
+      : [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
+  } catch {
+    rules = [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
+  }
+}
+
+function exportRules() {
+  const blob = new Blob([JSON.stringify(rules, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rules.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importRulesFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (!Array.isArray(imported)) throw new Error("not an array");
+      // merge, skip exact duplicates
+      const existing = new Set(rules.map(r => r[0].toLowerCase() + "→" + r[1].toLowerCase()));
+      let added = 0;
+      for (const r of imported) {
+        if (!Array.isArray(r) || r.length < 2) continue;
+        const key = String(r[0]).toLowerCase() + "→" + String(r[1]).toLowerCase();
+        if (!existing.has(key)) {
+          rules.push([r[0], r[1]]);
+          existing.add(key);
+          added++;
+        }
+      }
+      saveRules();
+      renderRules();
+      els.status.innerHTML = `<span class="ok">Imported ${added} new rule(s) from ${file.name}.</span>`;
+    } catch {
+      els.status.innerHTML = `<span class="bad">Could not read ${file.name} as a rules JSON file.</span>`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function cleanTitleText(title) {
+  return title
+    .replace(/^#+\s*/, "")
+    .replace(/\*\*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function inferTitleFromContent(text) {
+  if (!text) return "";
+
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+  // 1) Prefer the first Markdown H1 heading, excluding generic labels.
+  for (const line of lines.slice(0, 40)) {
+    const m = line.match(/^#\s+(.+)$/);
+    if (m) {
+      const candidate = cleanTitleText(m[1]);
+      if (!/^(transcript|cleaned lecture transcript)$/i.test(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  // 2) Look for common lecture/chapter title patterns near the top.
+  for (const line of lines.slice(0, 60)) {
+    const cleaned = cleanTitleText(line);
+
+    const chapterMatch = cleaned.match(/\b(chapter\s+\d+\s*[:\-–—]?\s*.+)$/i);
+    if (chapterMatch) return chapterMatch[1].trim();
+
+    const lectureMatch = cleaned.match(/\b(lecture\s+\d+\s*[:\-–—]?\s*.+)$/i);
+    if (lectureMatch) return lectureMatch[1].trim();
+
+    const weekMatch = cleaned.match(/\b(week\s+\d+\s*[:\-–—]?\s*.+)$/i);
+    if (weekMatch) return weekMatch[1].trim();
+  }
+
+  return "";
+}
+
+function inferTitleFromFilename(filename) {
+  if (!filename) return "";
+
+  return filename
+    .replace(/\.(md|txt)$/i, "")
+    .replace(/\b(pasted\s+markdown|transcript|cleaned)\b/gi, "")
+    .replace(/[()]+/g, " ")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function inferLectureTitle(text, filename) {
+  // Priority:
+  // 1. A title found inside the transcript
+  // 2. The uploaded filename
+  // 3. Blank
+  return inferTitleFromContent(text) || inferTitleFromFilename(filename) || "";
+}
+
+async function loadFile(file) {
+  const text = await file.text();
+  els.inputText.value = text;
+
+  const detectedTitle = inferLectureTitle(text, file.name);
+  els.title.value = detectedTitle;
+
+  if (detectedTitle) {
+    els.status.innerHTML = `<span class="ok">Loaded ${file.name} · Detected title: ${detectedTitle}</span>`;
+  } else {
+    els.status.innerHTML = `<span class="warn">Loaded ${file.name} · No lecture title detected.</span>`;
+  }
+}
+
+els.fileInput.addEventListener("change", e => {
+  const file = e.target.files?.[0];
+  if (file) loadFile(file);
+});
+
+["dragenter","dragover"].forEach(evt => {
+  els.drop.addEventListener(evt, e => {
+    e.preventDefault();
+    els.drop.classList.add("drag");
+  });
+});
+
+["dragleave","drop"].forEach(evt => {
+  els.drop.addEventListener(evt, e => {
+    e.preventDefault();
+    els.drop.classList.remove("drag");
+  });
+});
+
+els.drop.addEventListener("drop", e => {
+  const file = e.dataTransfer.files?.[0];
+  if (file) loadFile(file);
+});
+
+els.cleanBtn.addEventListener("click", () => {
+  const raw = els.inputText.value;
+  if (!raw.trim()) {
+    els.status.innerHTML = `<span class="bad">Paste or load a transcript first.</span>`;
+    return;
+  }
+  const cleaned = cleanTranscript(raw);
+  els.outputText.value = cleaned;
+  saveRules();
+  els.status.innerHTML = `<span class="ok">Transcript cleaned.</span>`;
+
+  if (els.findUnknownTerms.checked) {
+    const suggestions = findSuggestions(cleaned);
+    renderSuggestions(suggestions);
+  } else {
+    els.suggestions.innerHTML = "";
+  }
+});
+
+els.addRule.addEventListener("click", () => {
+  rules.push(["", ""]);
+  renderRules();
+});
+
+els.resetRules.addEventListener("click", () => {
+  rules = [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
+  saveRules();
+  renderRules();
+});
+
+els.exportRules.addEventListener("click", exportRules);
+
+els.importRulesInput.addEventListener("change", e => {
+  const file = e.target.files?.[0];
+  if (file) importRulesFromFile(file);
+  e.target.value = "";
+});
+
+els.copyBtn.addEventListener("click", async () => {
+  if (!els.outputText.value) return;
+  await navigator.clipboard.writeText(els.outputText.value);
+  els.status.innerHTML = `<span class="ok">Copied cleaned transcript.</span>`;
+});
+
+function slugifyTitle() {
+  const title = els.title.value.trim() || "Cleaned Lecture Transcript";
+  return title.replace(/[^\w\- ]+/g, "").replace(/\s+/g, "_");
+}
+
+function download(name, content, type) {
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+els.downloadMd.addEventListener("click", () => {
+  if (!els.outputText.value) return;
+  const title = els.title.value.trim() || "Lecture Transcript";
+  const body =
+`# ${title}
+## Cleaned Lecture Transcript
+
+> Cleaned from a Buzz/Whisper transcript. Timestamps and professor wording/repetition are retained as much as possible. Only obvious speech-to-text and medical terminology errors are corrected.
+
+${els.outputText.value}
+`;
+  download(`${slugifyTitle()}_Cleaned.md`, body, "text/markdown;charset=utf-8");
+});
+
+els.downloadTxt.addEventListener("click", () => {
+  if (!els.outputText.value) return;
+  const title = els.title.value.trim() || "Lecture Transcript";
+  const body = `${title}\nCleaned Lecture Transcript\n\n${els.outputText.value}\n`;
+  download(`${slugifyTitle()}_Cleaned.txt`, body, "text/plain;charset=utf-8");
+});
+
+loadRules();
+renderRules();
+loadMedicalDictionary();
+</script>
+</body>
+</html>
