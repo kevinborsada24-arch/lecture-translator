@@ -17,7 +17,7 @@
       --accent-2: #9bb0ff;
       --danger: #ff7b7b;
       --success: #7ee2a8;
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --shadow: 0 8px 24px rgba(0,0,0,.22);
     }
     * { box-sizing: border-box; }
     body {
@@ -28,167 +28,139 @@
       min-height: 100vh;
     }
     .wrap {
-      width: min(1180px, calc(100% - 32px));
+      width: min(1180px, calc(100% - 24px));
       margin: 0 auto;
-      padding: 32px 0 48px;
+      padding: 16px 0 32px;
     }
-    header {
-      margin-bottom: 24px;
-    }
+    header { margin-bottom: 12px; }
     h1 {
-      margin: 0 0 8px;
-      font-size: clamp(28px, 4vw, 42px);
-      letter-spacing: -0.03em;
+      margin: 0 0 4px;
+      font-size: clamp(20px, 3.4vw, 28px);
+      letter-spacing: -0.02em;
     }
     .sub {
       color: var(--muted);
       max-width: 780px;
-      line-height: 1.55;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
+      line-height: 1.45;
+      font-size: 13px;
     }
     .card {
       background: rgba(23,26,33,.95);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
+      border-radius: 16px;
+      padding: 14px;
       box-shadow: var(--shadow);
     }
-    .card h2 {
-      margin: 0 0 14px;
-      font-size: 18px;
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    input[type="text"], textarea {
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], select, textarea {
       width: 100%;
       background: #10141b;
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
+      border-radius: 10px;
+      padding: 10px 12px;
       outline: none;
       font: inherit;
     }
     textarea {
-      min-height: 440px;
+      min-height: 260px;
       resize: vertical;
       line-height: 1.5;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
     }
-    input[type="text"]:focus, textarea:focus {
+    input[type="text"]:focus, select:focus, textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(124,156,255,.15);
     }
     .drop {
       border: 1px dashed #52607a;
-      border-radius: 14px;
-      padding: 18px;
+      border-radius: 12px;
+      padding: 12px;
       text-align: center;
       background: #111722;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
-    .drop.drag {
-      border-color: var(--accent);
-      background: #15203a;
-    }
-    .buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
+    .drop.drag { border-color: var(--accent); background: #15203a; }
+    .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
     button, .fake-btn {
       appearance: none;
       border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 10px 14px;
+      border-radius: 10px;
+      padding: 9px 12px;
       background: var(--panel-2);
       color: var(--text);
       cursor: pointer;
       font-weight: 600;
-    }
-    button.primary {
-      background: var(--accent);
-      border-color: transparent;
-      color: #0c1020;
-    }
-    button:hover, .fake-btn:hover {
-      filter: brightness(1.06);
-    }
-    .status {
-      margin-top: 12px;
       font-size: 13px;
-      color: var(--muted);
-      min-height: 20px;
     }
+    button.primary { background: var(--accent); border-color: transparent; color: #0c1020; }
+    button:hover, .fake-btn:hover { filter: brightness(1.06); }
+    button:disabled { opacity: .5; cursor: default; }
+    .status { margin-top: 8px; font-size: 12px; color: var(--muted); min-height: 16px; }
     .ok { color: var(--success); }
     .warn { color: #ffd37e; }
     .bad { color: var(--danger); }
-    .row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: end;
-      margin-bottom: 14px;
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .row.with-btn { grid-template-columns: 1fr 1fr auto; align-items: end; }
+    @media (max-width: 640px) {
+      .row, .row.with-btn { grid-template-columns: 1fr; }
     }
     .pill {
-      display: inline-block;
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      color: var(--muted);
-      background: #111722;
-      border: 1px solid var(--border);
-      margin-right: 6px;
-      margin-bottom: 6px;
+      display: inline-block; font-size: 11px; padding: 4px 8px; border-radius: 999px;
+      color: var(--muted); background: #111722; border: 1px solid var(--border);
+      margin-right: 5px; margin-bottom: 5px;
     }
-    details {
-      margin-top: 18px;
-      border-top: 1px solid var(--border);
-      padding-top: 14px;
-    }
-    summary {
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .small {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    details { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+    summary { cursor: pointer; font-weight: 700; font-size: 13px; }
+    .small { font-size: 11.5px; color: var(--muted); line-height: 1.45; }
     .rules {
-      max-height: 260px;
-      overflow: auto;
-      background: #10141b;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      margin-top: 12px;
+      max-height: 220px; overflow: auto; background: #10141b; border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px; margin-top: 10px;
     }
-    .rule {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 8px;
-      margin-bottom: 8px;
+    .rule { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-bottom: 6px; }
+    .rule input { min-width: 0; }
+    .rule button { padding: 7px 9px; }
+    .checkline { display:flex; align-items:center; gap:8px; margin-top: 8px; cursor: pointer; }
+    .checkline input { width: auto; margin: 0; }
+    .checkline span { font-size: 13px; }
+
+    /* Top-level mode tabs (Single / Batch) */
+    .modetabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .modetabs button {
+      flex: 1; padding: 10px; border-radius: 10px; font-size: 13px;
     }
-    .rule input {
-      min-width: 0;
+    .modetabs button.active { background: var(--accent); color: #0c1020; border-color: transparent; }
+
+    /* Input/Output sub-tabs inside Single mode */
+    .subtabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .subtabs button { padding: 8px 14px; border-radius: 999px; font-size: 12.5px; }
+    .subtabs button.active { background: var(--accent-2); color: #0c1020; border-color: transparent; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Diff view */
+    .diff-box {
+      background: #10141b; border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px; max-height: 500px; overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; word-break: break-word;
     }
-    .rule button {
-      padding: 8px 10px;
+    .diff-del { background: rgba(255,123,123,.18); color: #ffb3b3; text-decoration: line-through; }
+    .diff-ins { background: rgba(126,226,168,.18); color: #a9f0c4; }
+    .diff-ts { color: var(--accent-2); font-weight: 700; }
+
+    /* Batch mode */
+    .batch-item {
+      background: #10141b; border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px; margin-bottom: 10px;
     }
+    .batch-head { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+    .batch-head input[type="text"] { flex: 2; min-width: 140px; }
+    .batch-head select { flex: 1; min-width: 140px; }
+    .batch-head button { flex: 0 0 auto; }
+    .batch-summary { font-size: 12px; color: var(--muted); margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -196,93 +168,150 @@
     <header>
       <h1>Lecture Transcript Cleaner</h1>
       <div class="sub">
-        Drop in a Buzz/Whisper <strong>.md</strong> or <strong>.txt</strong> transcript, clean common medical speech-to-text errors, keep timestamps, and download a cleaned transcript. Everything runs locally in your browser.
+        Drop in a Buzz/Whisper or video-player <strong>.md</strong>/<strong>.txt</strong> transcript, strip filler words, fix common medical ASR errors, and export cleaned lecture notes. Everything runs locally in your browser.
       </div>
     </header>
 
-    <div class="grid">
-      <section class="card">
-        <h2>1. Load transcript</h2>
+    <div class="modetabs">
+      <button id="modeSingleBtn" class="active">Single transcript</button>
+      <button id="modeBatchBtn">Batch mode</button>
+    </div>
 
-        <div id="drop" class="drop">
-          <div><strong>Drop your transcript here</strong></div>
-          <div class="small" style="margin-top:6px">or choose a .md / .txt file</div>
-          <div class="buttons" style="justify-content:center">
-            <label class="fake-btn">
-              Choose file
-              <input id="fileInput" type="file" accept=".md,.txt,text/plain,text/markdown" hidden />
-            </label>
+    <!-- ===================== SINGLE MODE ===================== -->
+    <div id="modeSingle">
+      <div class="subtabs">
+        <button id="tabInputBtn" class="active">1. Input</button>
+        <button id="tabOutputBtn">2. Output</button>
+      </div>
+
+      <div id="viewInput" class="view active">
+        <section class="card">
+          <div id="drop" class="drop">
+            <div><strong>Drop your transcript here</strong></div>
+            <div class="small" style="margin-top:4px">or choose a .md / .txt file</div>
+            <div class="buttons" style="justify-content:center">
+              <label class="fake-btn">
+                Choose file
+                <input id="fileInput" type="file" accept=".md,.txt,text/plain,text/markdown" hidden />
+              </label>
+            </div>
           </div>
-        </div>
 
-        <div class="row">
-          <div>
-            <label for="title">Lecture title</label>
-            <input id="title" type="text" placeholder="Chapter 7 - Neoplasia" />
+          <div class="row">
+            <div>
+              <label for="title">Lecture title</label>
+              <input id="title" type="text" placeholder="Chapter 7 - Neoplasia" />
+            </div>
+            <div>
+              <label for="system">Body system</label>
+              <select id="system">
+                <option>General / Cellular</option>
+                <option>Cardiovascular</option>
+                <option>Respiratory</option>
+                <option>Renal / Genitourinary</option>
+                <option>Endocrine</option>
+                <option>Gastrointestinal / Hepatic</option>
+                <option>Neurological</option>
+                <option>Musculoskeletal</option>
+                <option>Hematologic / Immune</option>
+                <option>Reproductive</option>
+                <option>Integumentary</option>
+                <option>Multisystem / Other</option>
+              </select>
+            </div>
           </div>
-          <button id="cleanBtn" class="primary">Clean transcript</button>
-        </div>
 
-        <label for="inputText">Raw transcript</label>
-        <textarea id="inputText" placeholder="Paste Buzz/Whisper transcript here..."></textarea>
+          <label for="inputText">Raw transcript</label>
+          <textarea id="inputText" placeholder="Paste transcript here..."></textarea>
 
-        <label style="display:flex; align-items:center; gap:8px; margin-top:12px; cursor:pointer;">
-          <input type="checkbox" id="stripFillers" checked style="width:auto; margin:0;" />
-          <span style="color: var(--text); font-size: 14px;">Strip filler words (um, uh, kinda, you know...)</span>
-        </label>
+          <label class="checkline">
+            <input type="checkbox" id="stripFillers" checked />
+            <span>Strip filler words (um, uh, kinda, you know...)</span>
+          </label>
+          <label class="checkline">
+            <input type="checkbox" id="findUnknownTerms" checked />
+            <span>Flag words that look like mis-transcribed medical terms</span>
+          </label>
+          <div class="small" id="dictStatus" style="margin-top:4px;">Loading medical term dictionary&hellip;</div>
 
-        <label style="display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer;">
-          <input type="checkbox" id="findUnknownTerms" checked style="width:auto; margin:0;" />
-          <span style="color: var(--text); font-size: 14px;">Flag words that look like mis-transcribed medical terms</span>
-        </label>
-        <div class="small" id="dictStatus" style="margin-top:4px;">Loading medical term dictionary&hellip;</div>
-
-        <div id="status" class="status"></div>
-
-        <details>
-          <summary>Custom correction rules</summary>
-          <p class="small">
-            Add recurring mistakes from your professor. Rules are case-insensitive and applied as whole-word/phrase replacements.
-            Export your rules to <code>rules.json</code> and commit it to the repo so they carry over to any device &mdash;
-            localStorage alone won't sync between your laptop and phone.
-          </p>
-          <div id="rules" class="rules"></div>
           <div class="buttons">
-            <button id="addRule">+ Add rule</button>
-            <button id="resetRules">Reset defaults</button>
-            <button id="exportRules">Export rules.json</button>
-            <label class="fake-btn">
-              Import rules.json
-              <input id="importRulesInput" type="file" accept=".json,application/json" hidden />
-            </label>
+            <button id="cleanBtn" class="primary">Clean transcript</button>
           </div>
-        </details>
-      </section>
+          <div id="status" class="status"></div>
 
+          <details>
+            <summary>Custom correction rules</summary>
+            <p class="small">
+              Add recurring mistakes from your professor. Rules are case-insensitive, whole-word/phrase replacements.
+              Export to <code>rules.json</code> and commit it to the repo so they carry over to any device.
+            </p>
+            <div id="rules" class="rules"></div>
+            <div class="buttons">
+              <button id="addRule">+ Add rule</button>
+              <button id="resetRules">Reset defaults</button>
+              <button id="exportRules">Export rules.json</button>
+              <label class="fake-btn">
+                Import rules.json
+                <input id="importRulesInput" type="file" accept=".json,application/json" hidden />
+              </label>
+            </div>
+          </details>
+        </section>
+      </div>
+
+      <div id="viewOutput" class="view">
+        <section class="card">
+          <div>
+            <span class="pill">Keeps timestamps</span>
+            <span class="pill">Fixes ASR term errors</span>
+            <span class="pill">Strips filler words</span>
+            <span class="pill">No upload, runs locally</span>
+          </div>
+
+          <div class="buttons" style="margin-top:10px;">
+            <button id="showPlainBtn" class="primary">Plain output</button>
+            <button id="showDiffBtn">View diff</button>
+          </div>
+
+          <div id="plainOutputWrap" style="margin-top:10px;">
+            <textarea id="outputText" placeholder="Cleaned transcript will appear here..." readonly></textarea>
+          </div>
+          <div id="diffOutputWrap" style="margin-top:10px; display:none;">
+            <div class="small" style="margin-bottom:6px;">
+              <span class="diff-del">red strikethrough</span> = removed &nbsp;
+              <span class="diff-ins">green</span> = added/changed
+            </div>
+            <div id="diffBox" class="diff-box"></div>
+          </div>
+
+          <div id="suggestions" style="margin-top:12px;"></div>
+
+          <div class="buttons">
+            <button id="copyBtn">Copy</button>
+            <button id="downloadMd" class="primary">Download .md</button>
+            <button id="downloadObsidian">Download for Obsidian</button>
+            <button id="downloadTxt">Download .txt</button>
+          </div>
+
+          <div class="small" style="margin-top:10px">
+            This tool only performs text replacement and light cleanup. It does not listen to the original audio, so ambiguous errors still need human review.
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ===================== BATCH MODE ===================== -->
+    <div id="modeBatch" style="display:none;">
       <section class="card">
-        <h2>2. Cleaned transcript</h2>
-
-        <div>
-          <span class="pill">Keeps timestamps</span>
-          <span class="pill">Fixes ASR term errors</span>
-          <span class="pill">Strips filler words</span>
-          <span class="pill">No upload, runs locally</span>
-        </div>
-
-        <label for="outputText" style="margin-top:14px">Output</label>
-        <textarea id="outputText" placeholder="Cleaned transcript will appear here..." readonly></textarea>
-
-        <div id="suggestions" style="margin-top:14px;"></div>
-
+        <h2>Batch clean multiple lectures</h2>
+        <p class="small">Paste in several transcripts at once (one per box below), clean them all together, then download each or grab them all as Obsidian-ready files in one go. Uses the same filler-stripping / rule settings from Single mode.</p>
+        <div id="batchList"></div>
         <div class="buttons">
-          <button id="copyBtn">Copy</button>
-          <button id="downloadMd" class="primary">Download .md</button>
-          <button id="downloadTxt">Download .txt</button>
+          <button id="batchAddBtn">+ Add transcript</button>
+          <button id="batchCleanAllBtn" class="primary">Clean all</button>
+          <button id="batchDownloadAllBtn">Download all (Obsidian .md)</button>
         </div>
-
-        <div class="small" style="margin-top:14px">
-          This tool only performs text replacement and light cleanup. It does not listen to the original audio, so ambiguous errors still need human review.
-        </div>
+        <div id="batchStatus" class="status"></div>
       </section>
     </div>
   </div>
@@ -308,6 +337,7 @@ const DEFAULT_RULES = [
   ["proto oncogenes", "proto-oncogenes"],
   ["proto oncogen", "proto-oncogene"],
   ["proto-oncogens", "proto-oncogenes"],
+  ["proto-oncogen", "proto-oncogene"],
   ["cell prophylactions", "cell proliferation"],
   ["prophylactions", "proliferation"],
   ["transcriptions factors", "transcription factors"],
@@ -315,6 +345,7 @@ const DEFAULT_RULES = [
   ["growth factors receptors", "growth factor receptors"],
   ["hair too", "HER2"],
   ["hair two", "HER2"],
+  ["hair to", "HER2"],
   ["ras rest", "RAS"],
   ["rast gene", "RAS gene"],
   ["retinoplastoma", "retinoblastoma"],
@@ -348,12 +379,8 @@ const DEFAULT_RULES = [
   ["interlockings", "interleukins"],
   ["interlooking too", "interleukin-2"],
   ["interlooking", "interleukin"],
-  ["immunotrophy", "immunotherapy"],
-  ["proto-oncogen", "proto-oncogene"],
-  ["proton cogen", "proto-oncogene"],
   ["interlocking", "interleukin"],
-  ["interlockings", "interleukins"],
-  ["hair to", "HER2"],
+  ["immunotrophy", "immunotherapy"],
   ["fox", "folks"]
 ];
 
@@ -393,46 +420,22 @@ const GENERAL_RULES = [
 ];
 
 const ABBREVIATIONS = {
-  "dna": "DNA",
-  "rna": "RNA",
-  "mrna": "mRNA",
-  "atp": "ATP",
-  "gtp": "GTP",
-  "egf": "EGF",
-  "hiv": "HIV",
-  "tnm": "TNM",
-  "gi": "GI",
-  "adh": "ADH",
-  "acth": "ACTH",
-  "rb": "RB",
-  "copd": "COPD",
-  "gerd": "GERD",
-  "dka": "DKA",
-  "chf": "CHF",
-  "cva": "CVA",
-  "uti": "UTI"
+  "dna": "DNA", "rna": "RNA", "mrna": "mRNA", "atp": "ATP", "gtp": "GTP",
+  "egf": "EGF", "hiv": "HIV", "tnm": "TNM", "gi": "GI", "adh": "ADH",
+  "acth": "ACTH", "rb": "RB", "copd": "COPD", "gerd": "GERD", "dka": "DKA",
+  "chf": "CHF", "cva": "CVA", "uti": "UTI"
 };
 
-// Filler words/phrases stripped when "Strip filler words" is checked.
-// Longer phrases listed first so they match before their sub-pieces do.
 const FILLERS = [
-  "you know what i mean",
-  "if that makes sense",
-  "kind of like",
-  "sort of like",
-  "you know",
-  "i mean",
-  "like i said",
-  "um",
-  "uh",
-  "uhh",
-  "umm",
-  "uh huh",
-  "mm hmm",
-  "kinda",
-  "sorta",
-  "okay so",
-  "so yeah"
+  "you know what i mean", "if that makes sense", "kind of like", "sort of like",
+  "you know", "i mean", "like i said", "um", "uh", "uhh", "umm", "uh huh",
+  "mm hmm", "kinda", "sorta", "okay so", "so yeah"
+];
+
+const BODY_SYSTEMS = [
+  "General / Cellular", "Cardiovascular", "Respiratory", "Renal / Genitourinary",
+  "Endocrine", "Gastrointestinal / Hepatic", "Neurological", "Musculoskeletal",
+  "Hematologic / Immune", "Reproductive", "Integumentary", "Multisystem / Other"
 ];
 
 let rules = [];
@@ -442,6 +445,7 @@ const els = {
   inputText: document.getElementById("inputText"),
   outputText: document.getElementById("outputText"),
   title: document.getElementById("title"),
+  system: document.getElementById("system"),
   cleanBtn: document.getElementById("cleanBtn"),
   status: document.getElementById("status"),
   drop: document.getElementById("drop"),
@@ -451,12 +455,31 @@ const els = {
   copyBtn: document.getElementById("copyBtn"),
   downloadMd: document.getElementById("downloadMd"),
   downloadTxt: document.getElementById("downloadTxt"),
+  downloadObsidian: document.getElementById("downloadObsidian"),
   stripFillers: document.getElementById("stripFillers"),
   exportRules: document.getElementById("exportRules"),
   importRulesInput: document.getElementById("importRulesInput"),
   findUnknownTerms: document.getElementById("findUnknownTerms"),
   dictStatus: document.getElementById("dictStatus"),
-  suggestions: document.getElementById("suggestions")
+  suggestions: document.getElementById("suggestions"),
+  showPlainBtn: document.getElementById("showPlainBtn"),
+  showDiffBtn: document.getElementById("showDiffBtn"),
+  plainOutputWrap: document.getElementById("plainOutputWrap"),
+  diffOutputWrap: document.getElementById("diffOutputWrap"),
+  diffBox: document.getElementById("diffBox"),
+  modeSingleBtn: document.getElementById("modeSingleBtn"),
+  modeBatchBtn: document.getElementById("modeBatchBtn"),
+  modeSingle: document.getElementById("modeSingle"),
+  modeBatch: document.getElementById("modeBatch"),
+  tabInputBtn: document.getElementById("tabInputBtn"),
+  tabOutputBtn: document.getElementById("tabOutputBtn"),
+  viewInput: document.getElementById("viewInput"),
+  viewOutput: document.getElementById("viewOutput"),
+  batchList: document.getElementById("batchList"),
+  batchAddBtn: document.getElementById("batchAddBtn"),
+  batchCleanAllBtn: document.getElementById("batchCleanAllBtn"),
+  batchDownloadAllBtn: document.getElementById("batchDownloadAllBtn"),
+  batchStatus: document.getElementById("batchStatus")
 };
 
 function escapeRegex(s) {
@@ -490,20 +513,15 @@ function extractTranscript(text) {
     text = lines.slice(startIdx).join("\n");
   }
 
-  // Strip trailing player chrome some exports leave at the very end,
-  // regardless of which header format was detected above.
   text = text.replace(/^\s*transcript segment selected at.*$/gim, "");
-
   return text;
 }
 
-function stripFillers(text) {
+function stripFillersText(text) {
   for (const phrase of FILLERS) {
     const re = new RegExp("\\b" + escapeRegex(phrase) + "\\b", "gi");
     text = text.replace(re, "");
   }
-  // collapse stray commas/spaces left behind, but keep it line-aware
-  // so timestamp lines don't get mangled
   return text
     .split(/\r?\n/)
     .map(line => line
@@ -522,13 +540,10 @@ function collapseStutters(text) {
 
 // ---- Medical term dictionary + fuzzy matching ----
 // Dictionary source: github.com/glutanimate/wordlist-medicalterms-en (GPL-3.0),
-// merged from OpenMedSpel and MTH-Med-Spel-Chek. 92k+ terms: drug names,
-// anatomy, ICD-9, DSM-IV, general medicine. Attribution kept in README.
-let medicalTerms = null;      // Set of known-good terms
-let soundexIndex = null;      // Map soundexCode -> [terms]
+// merged from OpenMedSpel and MTH-Med-Spel-Chek. 92k+ terms. See README.
+let medicalTerms = null;
+let soundexIndex = null;
 
-// A short list of ordinary high-frequency English words, so we don't flag
-// "patient," "because," "system" etc. as unrecognized medical terms.
 const COMMON_WORDS = new Set(`the a an and or but if so to of in on at for with
 without by from as is are was were be been being this that these those it its
 they them their he she his her we us our you your i my me not no yes do does
@@ -606,17 +621,12 @@ function loadIgnoredWords() {
     return new Set();
   }
 }
-
 let ignoredWords = loadIgnoredWords();
-
 function saveIgnoredWords() {
   localStorage.setItem("lectureCleanerIgnoredWords", JSON.stringify([...ignoredWords]));
 }
 
 function sameStem(a, b) {
-  // Treats "cancers"/"cancer" or "stimulated"/"stimulate" as the same word,
-  // not a correction - the static dictionary only has base forms, so plain
-  // pluralization/tense would otherwise get flagged as "wrong."
   let i = 0;
   while (i < a.length && i < b.length && a[i] === b[i]) i++;
   const shorter = Math.min(a.length, b.length);
@@ -632,9 +642,9 @@ function findSuggestions(text) {
   for (const raw of words) {
     const word = raw.toLowerCase();
     if (seen.has(word)) continue;
-    if (medicalTerms.has(word)) continue;      // already a known good term
-    if (COMMON_WORDS.has(word)) continue;       // ordinary English, skip
-    if (ignoredWords.has(word)) continue;       // you already dismissed this one
+    if (medicalTerms.has(word)) continue;
+    if (COMMON_WORDS.has(word)) continue;
+    if (ignoredWords.has(word)) continue;
     seen.add(word);
 
     const code = soundex(word);
@@ -645,20 +655,16 @@ function findSuggestions(text) {
       const dist = levenshtein(word, candidate);
       if (dist < bestDist) { bestDist = dist; best = candidate; }
     }
-    // Only suggest close, plausible matches - keeps false positives down.
-    // Short words match tons of unrelated dictionary entries at distance 1,
-    // so require more letters and, for shorter words, an exact-length match.
     if (word.length < 7) continue;
     const threshold = word.length <= 9 ? 1 : 2;
     if (best && bestDist > 0 && bestDist <= threshold && !sameStem(word, best)) {
       suggestions.push({ word: raw, suggestion: best, distance: bestDist });
     }
   }
-
   return suggestions.sort((a, b) => a.distance - b.distance).slice(0, 20);
 }
 
-function renderSuggestions(suggestions) {
+function renderSuggestions(suggestions, onChange) {
   const box = els.suggestions;
   if (!suggestions.length) {
     box.innerHTML = "";
@@ -676,8 +682,7 @@ function renderSuggestions(suggestions) {
     <details open>
       <summary>Possible term corrections (${suggestions.length})</summary>
       <p class="small">Words not found in the medical dictionary, with the closest real term by sound.
-        These are NOT auto-applied. Click "Add rule" for real ones &mdash; it adds a correction rule and re-cleans.
-        Click "Ignore" for ordinary words or names so they stop showing up here.</p>
+        NOT auto-applied. "Add rule" for real ones, "Ignore" for ordinary words/names.</p>
       <div class="rules">${rows}</div>
     </details>
   `;
@@ -689,7 +694,7 @@ function renderSuggestions(suggestions) {
       renderRules();
       btn.disabled = true;
       btn.textContent = "Added";
-      els.outputText.value = cleanTranscript(els.inputText.value);
+      if (onChange) onChange();
     });
   });
   box.querySelectorAll(".ignoreSuggestion").forEach(btn => {
@@ -702,61 +707,41 @@ function renderSuggestions(suggestions) {
   });
 }
 
-function cleanTranscript(text) {
+function cleanTranscript(text, stripFillersOn) {
   let out = extractTranscript(text);
-
-  if (els.stripFillers.checked) {
-    out = stripFillers(out);
+  if (stripFillersOn) {
+    out = stripFillersText(out);
     out = collapseStutters(out);
   }
-
   for (const [from, to] of rules) {
     if (!from.trim()) continue;
     const re = new RegExp("\\b" + escapeRegex(from.trim()) + "\\b", "gi");
     out = out.replace(re, to);
   }
-
   for (const [term, replacement] of Object.entries(ABBREVIATIONS)) {
     const re = new RegExp("\\b" + escapeRegex(term) + "\\b", "gi");
     out = out.replace(re, replacement);
   }
-
-  // A correction can turn adjacent mis-transcribed variants into literal
-  // repeats (e.g. "hair too hair two hair to" -> "HER2 HER2 HER2").
-  // Collapse those too, now that they match exactly.
   out = collapseStutters(out);
-
   out = out.replace(/\n{3,}/g, "\n\n").trim();
   return out;
 }
 
+// ---- Rules management ----
 function renderRules() {
   els.rules.innerHTML = "";
   rules.forEach((rule, i) => {
     const row = document.createElement("div");
     row.className = "rule";
-
     const from = document.createElement("input");
-    from.type = "text";
-    from.value = rule[0];
-    from.placeholder = "Buzz heard...";
+    from.type = "text"; from.value = rule[0]; from.placeholder = "Buzz heard...";
     from.addEventListener("input", e => rules[i][0] = e.target.value);
-
     const to = document.createElement("input");
-    to.type = "text";
-    to.value = rule[1];
-    to.placeholder = "Replace with...";
+    to.type = "text"; to.value = rule[1]; to.placeholder = "Replace with...";
     to.addEventListener("input", e => rules[i][1] = e.target.value);
-
     const del = document.createElement("button");
-    del.textContent = "×";
-    del.title = "Delete rule";
-    del.addEventListener("click", () => {
-      rules.splice(i, 1);
-      saveRules();
-      renderRules();
-    });
-
+    del.textContent = "×"; del.title = "Delete rule";
+    del.addEventListener("click", () => { rules.splice(i, 1); saveRules(); renderRules(); });
     row.append(from, to, del);
     els.rules.appendChild(row);
   });
@@ -765,7 +750,6 @@ function renderRules() {
 function saveRules() {
   localStorage.setItem("lectureCleanerRules", JSON.stringify(rules));
 }
-
 function loadRules() {
   try {
     const saved = JSON.parse(localStorage.getItem("lectureCleanerRules") || "null");
@@ -776,39 +760,28 @@ function loadRules() {
     rules = [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
   }
 }
-
 function exportRules() {
   const blob = new Blob([JSON.stringify(rules, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
-  a.download = "rules.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.href = url; a.download = "rules.json";
+  document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
-
 function importRulesFromFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const imported = JSON.parse(reader.result);
       if (!Array.isArray(imported)) throw new Error("not an array");
-      // merge, skip exact duplicates
       const existing = new Set(rules.map(r => r[0].toLowerCase() + "→" + r[1].toLowerCase()));
       let added = 0;
       for (const r of imported) {
         if (!Array.isArray(r) || r.length < 2) continue;
         const key = String(r[0]).toLowerCase() + "→" + String(r[1]).toLowerCase();
-        if (!existing.has(key)) {
-          rules.push([r[0], r[1]]);
-          existing.add(key);
-          added++;
-        }
+        if (!existing.has(key)) { rules.push([r[0], r[1]]); existing.add(key); added++; }
       }
-      saveRules();
-      renderRules();
+      saveRules(); renderRules();
       els.status.innerHTML = `<span class="ok">Imported ${added} new rule(s) from ${file.name}.</span>`;
     } catch {
       els.status.innerHTML = `<span class="bad">Could not read ${file.name} as a rules JSON file.</span>`;
@@ -817,141 +790,252 @@ function importRulesFromFile(file) {
   reader.readAsText(file);
 }
 
+// ---- Title inference ----
 function cleanTitleText(title) {
-  return title
-    .replace(/^#+\s*/, "")
-    .replace(/\*\*/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return title.replace(/^#+\s*/, "").replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
 }
-
 function inferTitleFromContent(text) {
   if (!text) return "";
-
   const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-
-  // 1) Prefer the first Markdown H1 heading, excluding generic labels.
   for (const line of lines.slice(0, 40)) {
     const m = line.match(/^#\s+(.+)$/);
     if (m) {
       const candidate = cleanTitleText(m[1]);
-      if (!/^(transcript|cleaned lecture transcript)$/i.test(candidate)) {
-        return candidate;
-      }
+      if (!/^(transcript|cleaned lecture transcript)$/i.test(candidate)) return candidate;
     }
   }
-
-  // 2) Look for common lecture/chapter title patterns near the top.
   for (const line of lines.slice(0, 60)) {
     const cleaned = cleanTitleText(line);
-
     const chapterMatch = cleaned.match(/\b(chapter\s+\d+\s*[:\-–—]?\s*.+)$/i);
     if (chapterMatch) return chapterMatch[1].trim();
-
     const lectureMatch = cleaned.match(/\b(lecture\s+\d+\s*[:\-–—]?\s*.+)$/i);
     if (lectureMatch) return lectureMatch[1].trim();
-
     const weekMatch = cleaned.match(/\b(week\s+\d+\s*[:\-–—]?\s*.+)$/i);
     if (weekMatch) return weekMatch[1].trim();
   }
-
   return "";
 }
-
 function inferTitleFromFilename(filename) {
   if (!filename) return "";
-
   return filename
     .replace(/\.(md|txt)$/i, "")
     .replace(/\b(pasted\s+markdown|transcript|cleaned)\b/gi, "")
-    .replace(/[()]+/g, " ")
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .replace(/[()]+/g, " ").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
 }
-
 function inferLectureTitle(text, filename) {
-  // Priority:
-  // 1. A title found inside the transcript
-  // 2. The uploaded filename
-  // 3. Blank
   return inferTitleFromContent(text) || inferTitleFromFilename(filename) || "";
 }
 
+// ---- Single-mode file loading ----
 async function loadFile(file) {
   const text = await file.text();
   els.inputText.value = text;
-
   const detectedTitle = inferLectureTitle(text, file.name);
   els.title.value = detectedTitle;
-
   if (detectedTitle) {
     els.status.innerHTML = `<span class="ok">Loaded ${file.name} · Detected title: ${detectedTitle}</span>`;
   } else {
     els.status.innerHTML = `<span class="warn">Loaded ${file.name} · No lecture title detected.</span>`;
   }
 }
+els.fileInput.addEventListener("change", e => { const f = e.target.files?.[0]; if (f) loadFile(f); });
+["dragenter","dragover"].forEach(evt => els.drop.addEventListener(evt, e => { e.preventDefault(); els.drop.classList.add("drag"); }));
+["dragleave","drop"].forEach(evt => els.drop.addEventListener(evt, e => { e.preventDefault(); els.drop.classList.remove("drag"); }));
+els.drop.addEventListener("drop", e => { const f = e.dataTransfer.files?.[0]; if (f) loadFile(f); });
 
-els.fileInput.addEventListener("change", e => {
-  const file = e.target.files?.[0];
-  if (file) loadFile(file);
+// ---- Diff engine (line-level LCS, with word-level diff inside changed line pairs) ----
+function diffLines(a, b) {
+  const n = a.length, m = b.length;
+  const dp = new Array(n + 1);
+  for (let i = 0; i <= n; i++) dp[i] = new Int32Array(m + 1);
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = a[i] === b[j] ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1]);
+    }
+  }
+  const ops = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { ops.push({ type: "equal", a: a[i], b: b[j] }); i++; j++; }
+    else if (dp[i+1][j] >= dp[i][j+1]) { ops.push({ type: "del", a: a[i] }); i++; }
+    else { ops.push({ type: "add", b: b[j] }); j++; }
+  }
+  while (i < n) { ops.push({ type: "del", a: a[i] }); i++; }
+  while (j < m) { ops.push({ type: "add", b: b[j] }); j++; }
+  return ops;
+}
+
+function diffWords(a, b) {
+  const aw = a.split(/(\s+)/).filter(x => x !== "");
+  const bw = b.split(/(\s+)/).filter(x => x !== "");
+  const n = aw.length, m = bw.length;
+  const dp = new Array(n + 1);
+  for (let i = 0; i <= n; i++) dp[i] = new Int32Array(m + 1);
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = aw[i] === bw[j] ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1]);
+    }
+  }
+  const ops = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (aw[i] === bw[j]) { ops.push({ type: "equal", text: aw[i] }); i++; j++; }
+    else if (dp[i+1][j] >= dp[i][j+1]) { ops.push({ type: "del", text: aw[i] }); i++; }
+    else { ops.push({ type: "add", text: bw[j] }); j++; }
+  }
+  while (i < n) { ops.push({ type: "del", text: aw[i] }); i++; }
+  while (j < m) { ops.push({ type: "add", text: bw[j] }); j++; }
+  return ops;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function renderDiffHtml(rawText, cleanedText) {
+  const aLines = rawText.split(/\r?\n/);
+  const bLines = cleanedText.split(/\r?\n/);
+  const MAX_LINES = 4000;
+  if (aLines.length > MAX_LINES || bLines.length > MAX_LINES) {
+    return `<span class="warn">Transcript too long for diff view (${aLines.length} lines). Use the plain output instead.</span>`;
+  }
+  const lineOps = diffLines(aLines, bLines);
+
+  // Pair up consecutive del-runs and add-runs 1:1 so a changed line renders
+  // as one merged line with inline word highlighting, not two full lines.
+  const merged = [];
+  for (let k = 0; k < lineOps.length; k++) {
+    if (lineOps[k].type === "equal") { merged.push(lineOps[k]); continue; }
+    const delRun = [];
+    while (k < lineOps.length && lineOps[k].type === "del") { delRun.push(lineOps[k].a); k++; }
+    const addRun = [];
+    while (k < lineOps.length && lineOps[k].type === "add") { addRun.push(lineOps[k].b); k++; }
+    k--;
+    const pairs = Math.min(delRun.length, addRun.length);
+    for (let p = 0; p < pairs; p++) merged.push({ type: "replace", a: delRun[p], b: addRun[p] });
+    for (let p = pairs; p < delRun.length; p++) merged.push({ type: "del", a: delRun[p] });
+    for (let p = pairs; p < addRun.length; p++) merged.push({ type: "add", b: addRun[p] });
+  }
+
+  const isTimestamp = s => /^\s*\d{1,2}(:\d{2}){1,2}\s*$/.test(s) || /^\*\*\d{1,2}(:\d{2}){1,2}\*\*$/.test(s);
+
+  const html = merged.map(op => {
+    if (op.type === "equal") {
+      const cls = isTimestamp(op.a) ? "diff-ts" : "";
+      return `<div class="${cls}">${escapeHtml(op.a)}</div>`;
+    }
+    if (op.type === "del") return `<div class="diff-del">${escapeHtml(op.a)}</div>`;
+    if (op.type === "add") return `<div class="diff-ins">${escapeHtml(op.b)}</div>`;
+    // replace: word-level diff inside the line
+    const wordOps = diffWords(op.a, op.b);
+    const parts = wordOps.map(w => {
+      if (w.type === "equal") return escapeHtml(w.text);
+      if (w.type === "del") return `<span class="diff-del">${escapeHtml(w.text)}</span>`;
+      return `<span class="diff-ins">${escapeHtml(w.text)}</span>`;
+    }).join("");
+    return `<div>${parts}</div>`;
+  }).join("");
+
+  return html || `<span class="small">No differences.</span>`;
+}
+
+// ---- Obsidian export ----
+function slugify(s) {
+  return s.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-");
+}
+function systemTag(system) {
+  return system.toLowerCase().split(/\s*\/\s*|\s+/)[0];
+}
+function buildObsidianMarkdown(title, system, cleanedText) {
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const safeTitle = title.replace(/"/g, "'");
+  return `---
+title: "${safeTitle}"
+system: "${system}"
+source: lecture-transcript-cleaner
+date: ${dateStr}
+tags: [pathophysiology, ${systemTag(system)}]
+---
+
+# ${title}
+
+${cleanedText}
+`;
+}
+function download(name, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// ---- Tab switching ----
+function setMode(mode) {
+  const single = mode === "single";
+  els.modeSingle.style.display = single ? "" : "none";
+  els.modeBatch.style.display = single ? "none" : "";
+  els.modeSingleBtn.classList.toggle("active", single);
+  els.modeBatchBtn.classList.toggle("active", !single);
+}
+els.modeSingleBtn.addEventListener("click", () => setMode("single"));
+els.modeBatchBtn.addEventListener("click", () => setMode("batch"));
+
+function setView(view) {
+  const input = view === "input";
+  els.viewInput.classList.toggle("active", input);
+  els.viewOutput.classList.toggle("active", !input);
+  els.tabInputBtn.classList.toggle("active", input);
+  els.tabOutputBtn.classList.toggle("active", !input);
+}
+els.tabInputBtn.addEventListener("click", () => setView("input"));
+els.tabOutputBtn.addEventListener("click", () => setView("output"));
+
+function setOutputDisplay(mode) {
+  const plain = mode === "plain";
+  els.plainOutputWrap.style.display = plain ? "" : "none";
+  els.diffOutputWrap.style.display = plain ? "none" : "";
+  els.showPlainBtn.classList.toggle("primary", plain);
+  els.showDiffBtn.classList.toggle("primary", !plain);
+}
+els.showPlainBtn.addEventListener("click", () => setOutputDisplay("plain"));
+els.showDiffBtn.addEventListener("click", () => {
+  setOutputDisplay("diff");
+  els.diffBox.innerHTML = renderDiffHtml(els.inputText.value, els.outputText.value);
 });
 
-["dragenter","dragover"].forEach(evt => {
-  els.drop.addEventListener(evt, e => {
-    e.preventDefault();
-    els.drop.classList.add("drag");
-  });
-});
-
-["dragleave","drop"].forEach(evt => {
-  els.drop.addEventListener(evt, e => {
-    e.preventDefault();
-    els.drop.classList.remove("drag");
-  });
-});
-
-els.drop.addEventListener("drop", e => {
-  const file = e.dataTransfer.files?.[0];
-  if (file) loadFile(file);
-});
-
+// ---- Single-mode actions ----
 els.cleanBtn.addEventListener("click", () => {
   const raw = els.inputText.value;
   if (!raw.trim()) {
     els.status.innerHTML = `<span class="bad">Paste or load a transcript first.</span>`;
     return;
   }
-  const cleaned = cleanTranscript(raw);
+  const cleaned = cleanTranscript(raw, els.stripFillers.checked);
   els.outputText.value = cleaned;
   saveRules();
   els.status.innerHTML = `<span class="ok">Transcript cleaned.</span>`;
 
   if (els.findUnknownTerms.checked) {
-    const suggestions = findSuggestions(cleaned);
-    renderSuggestions(suggestions);
+    renderSuggestions(findSuggestions(cleaned), () => {
+      els.outputText.value = cleanTranscript(els.inputText.value, els.stripFillers.checked);
+    });
   } else {
     els.suggestions.innerHTML = "";
   }
+  setOutputDisplay("plain");
+  setView("output");
 });
 
-els.addRule.addEventListener("click", () => {
-  rules.push(["", ""]);
-  renderRules();
-});
-
+els.addRule.addEventListener("click", () => { rules.push(["", ""]); renderRules(); });
 els.resetRules.addEventListener("click", () => {
   rules = [...structuredClone(GENERAL_RULES), ...structuredClone(DEFAULT_RULES)];
-  saveRules();
-  renderRules();
+  saveRules(); renderRules();
 });
-
 els.exportRules.addEventListener("click", exportRules);
-
 els.importRulesInput.addEventListener("change", e => {
-  const file = e.target.files?.[0];
-  if (file) importRulesFromFile(file);
-  e.target.value = "";
+  const f = e.target.files?.[0]; if (f) importRulesFromFile(f); e.target.value = "";
 });
 
 els.copyBtn.addEventListener("click", async () => {
@@ -965,38 +1049,134 @@ function slugifyTitle() {
   return title.replace(/[^\w\- ]+/g, "").replace(/\s+/g, "_");
 }
 
-function download(name, content, type) {
-  const blob = new Blob([content], {type});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
 els.downloadMd.addEventListener("click", () => {
   if (!els.outputText.value) return;
   const title = els.title.value.trim() || "Lecture Transcript";
-  const body =
-`# ${title}
-## Cleaned Lecture Transcript
-
-> Cleaned from a Buzz/Whisper transcript. Timestamps and professor wording/repetition are retained as much as possible. Only obvious speech-to-text and medical terminology errors are corrected.
-
-${els.outputText.value}
-`;
+  const body = `# ${title}\n## Cleaned Lecture Transcript\n\n> Cleaned from a Buzz/Whisper transcript. Timestamps and professor wording/repetition are retained as much as possible. Only obvious speech-to-text and medical terminology errors are corrected.\n\n${els.outputText.value}\n`;
   download(`${slugifyTitle()}_Cleaned.md`, body, "text/markdown;charset=utf-8");
 });
-
 els.downloadTxt.addEventListener("click", () => {
   if (!els.outputText.value) return;
   const title = els.title.value.trim() || "Lecture Transcript";
   const body = `${title}\nCleaned Lecture Transcript\n\n${els.outputText.value}\n`;
   download(`${slugifyTitle()}_Cleaned.txt`, body, "text/plain;charset=utf-8");
 });
+els.downloadObsidian.addEventListener("click", () => {
+  if (!els.outputText.value) return;
+  const title = els.title.value.trim() || "Lecture Transcript";
+  const system = els.system.value;
+  const body = buildObsidianMarkdown(title, system, els.outputText.value);
+  download(`${slugify(systemTag(system))}_${slugifyTitle()}.md`, body, "text/markdown;charset=utf-8");
+});
+
+// ---- Batch mode ----
+let batchItems = [];
+let batchIdCounter = 0;
+
+function addBatchItem() {
+  batchItems.push({ id: ++batchIdCounter, title: "", system: BODY_SYSTEMS[0], raw: "", cleaned: null });
+  renderBatchList();
+}
+
+function renderBatchList() {
+  els.batchList.innerHTML = "";
+  batchItems.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "batch-item";
+
+    const head = document.createElement("div");
+    head.className = "batch-head";
+
+    const titleInput = document.createElement("input");
+    titleInput.type = "text";
+    titleInput.placeholder = "Lecture title";
+    titleInput.value = item.title;
+    titleInput.addEventListener("input", e => item.title = e.target.value);
+
+    const systemSelect = document.createElement("select");
+    BODY_SYSTEMS.forEach(sys => {
+      const opt = document.createElement("option");
+      opt.value = sys; opt.textContent = sys;
+      if (sys === item.system) opt.selected = true;
+      systemSelect.appendChild(opt);
+    });
+    systemSelect.addEventListener("change", e => item.system = e.target.value);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.addEventListener("click", () => {
+      batchItems = batchItems.filter(x => x.id !== item.id);
+      renderBatchList();
+    });
+
+    head.append(titleInput, systemSelect, removeBtn);
+
+    const textarea = document.createElement("textarea");
+    textarea.placeholder = "Paste transcript here...";
+    textarea.style.minHeight = "140px";
+    textarea.value = item.raw;
+    textarea.addEventListener("input", e => { item.raw = e.target.value; item.cleaned = null; renderBatchSummary(item, summary); });
+
+    const summary = document.createElement("div");
+    summary.className = "batch-summary";
+    renderBatchSummary(item, summary);
+
+    card.append(head, textarea, summary);
+    els.batchList.appendChild(card);
+  });
+}
+
+function renderBatchSummary(item, summaryEl) {
+  if (item.cleaned === null) {
+    summaryEl.textContent = item.raw.trim() ? "Not cleaned yet." : "Empty.";
+    return;
+  }
+  const wordCount = item.cleaned.split(/\s+/).filter(Boolean).length;
+  summaryEl.innerHTML = `Cleaned &middot; ${wordCount.toLocaleString()} words &middot; ` +
+    `<button class="batchDownloadOne" data-id="${item.id}">Download for Obsidian</button>`;
+  const btn = summaryEl.querySelector(".batchDownloadOne");
+  btn.addEventListener("click", () => {
+    const title = item.title.trim() || "Lecture Transcript";
+    const body = buildObsidianMarkdown(title, item.system, item.cleaned);
+    download(`${slugify(systemTag(item.system))}_${slugify(title)}.md`, body, "text/markdown;charset=utf-8");
+  });
+}
+
+els.batchAddBtn.addEventListener("click", addBatchItem);
+
+els.batchCleanAllBtn.addEventListener("click", () => {
+  if (!batchItems.length) {
+    els.batchStatus.innerHTML = `<span class="bad">Add at least one transcript first.</span>`;
+    return;
+  }
+  let cleanedCount = 0;
+  for (const item of batchItems) {
+    if (!item.raw.trim()) continue;
+    item.cleaned = cleanTranscript(item.raw, els.stripFillers.checked);
+    cleanedCount++;
+  }
+  renderBatchList();
+  els.batchStatus.innerHTML = `<span class="ok">Cleaned ${cleanedCount} transcript(s).</span>`;
+});
+
+els.batchDownloadAllBtn.addEventListener("click", () => {
+  const ready = batchItems.filter(item => item.cleaned !== null);
+  if (!ready.length) {
+    els.batchStatus.innerHTML = `<span class="bad">Nothing cleaned yet. Click "Clean all" first.</span>`;
+    return;
+  }
+  ready.forEach((item, i) => {
+    setTimeout(() => {
+      const title = item.title.trim() || `Lecture Transcript ${i + 1}`;
+      const body = buildObsidianMarkdown(title, item.system, item.cleaned);
+      download(`${slugify(systemTag(item.system))}_${slugify(title)}.md`, body, "text/markdown;charset=utf-8");
+    }, i * 250); // stagger so the browser doesn't block multi-file downloads
+  });
+  els.batchStatus.innerHTML = `<span class="ok">Downloading ${ready.length} file(s)&hellip;</span>`;
+});
+
+// Start with one empty batch row so the list isn't blank
+addBatchItem();
 
 loadRules();
 renderRules();

@@ -1,9 +1,9 @@
 # Pathophysio Transcript Cleaner
 
-Paste a Buzz/Whisper lecture transcript, strip filler words, fix common
-speech-to-text errors on medical terms, and flag words that look like
-mis-transcribed medical terminology even if they're not in the rule list yet.
-Everything runs in the browser, no upload, no backend.
+Paste a Buzz/Whisper or video-player lecture transcript, strip filler words,
+fix common speech-to-text errors on medical terms, flag words that look like
+mis-transcribed terminology, and export cleaned notes ready for your Obsidian
+NCLEX vault. Everything runs in the browser, no upload, no backend.
 
 ## Files
 
@@ -12,20 +12,36 @@ Everything runs in the browser, no upload, no backend.
   Credits below). Must stay in the same folder as `index.html`.
 - `README.md` — this file
 
-## Use it
+## Layout
 
-Open `index.html` directly, or once this is on GitHub Pages, just visit the
-page URL.
+Two top-level modes: **Single transcript** and **Batch mode**, plus
+**Input**/**Output** tabs inside Single mode so you're never scrolling
+through both a full paste box and a full output box at once.
 
-1. Paste your transcript or drop the .md/.txt file.
-2. Leave "Strip filler words" checked to drop um/uh/kinda/etc.
-3. Leave "Flag words that look like mis-transcribed medical terms" checked.
-4. Hit Clean transcript.
-5. Below the output, review the "Possible term corrections" panel. For each
-   one: **Add rule** if it's a real mis-transcribed term (this fixes it now
-   and remembers it for next time), or **Ignore** if it's just an ordinary
-   word or a name that happened to look close to something in the dictionary.
-6. Copy or download the result.
+## Use it — single transcript
+
+1. Paste your transcript or drop the .md/.txt file (Input tab).
+2. Set the lecture title and pick a body system (used for the Obsidian
+   export filename/tags — matches how your NCLEX vault is organized).
+3. Leave "Strip filler words" and "Flag words that look like mis-transcribed
+   medical terms" checked.
+4. Hit **Clean transcript** — this switches you to the Output tab automatically.
+5. Toggle **Plain output** vs **View diff** to see exactly what changed:
+   red strikethrough = removed, green = added/changed. Handy for trusting
+   the output instead of taking it on faith.
+6. Review "Possible term corrections" — **Add rule** for real catches,
+   **Ignore** for false positives.
+7. Copy, or download as **.md**, **.txt**, or **Obsidian** (adds YAML
+   frontmatter with title/system/date/tags so it drops straight into your
+   vault).
+
+## Use it — batch mode
+
+For catching up on several lectures at once: click **Batch mode**, hit
+**+ Add transcript** for each lecture, paste each one in with its own title
+and body system, then **Clean all**. Each item gets its own "Download for
+Obsidian" button, or use **Download all (Obsidian .md)** to grab everything
+in one go — your browser will ask to allow multiple downloads the first time.
 
 ### How the term-flagging actually works, honestly
 
@@ -35,15 +51,13 @@ This isn't AI and it isn't looking anything up online. It's a local word list
 transcribed word isn't in the dictionary and isn't common English, it looks
 for the closest real term that *sounds* similar and suggests it.
 
-It catches things you've never manually added a rule for — tested on a
-sample transcript, it correctly caught "nephrpathy," "hypertention,"
-"tachycardya," and "dysrythmia" without any rule existing for them.
-
-It also produces false positives on ordinary words (in testing, roughly
-1 in 2 flagged words was a real word like "afterward" or "discussed" that
-just happened to sound close to some obscure dictionary entry). That's why
-it's suggest-and-review, not auto-replace — click Ignore on those and they
-won't come back.
+Tested against two full real lecture transcripts (91 min and 79 min), it
+caught genuine errors with zero rules written for them — "nephrpathy,"
+"hypertention," "acetominophen," "endonucleosis" — and it also produces some
+false positives on ordinary words, roughly 1 in 3-4 flagged words in
+testing. That's inherent to phonetic matching on a word list this size.
+That's why it's suggest-and-review, not auto-replace — Ignore permanently
+dismisses a false positive so it won't nag you again.
 
 ## Keeping corrections across the semester
 
@@ -88,19 +102,9 @@ someone asks, point them to that source.
 
 ## Ideas for later, not built yet
 
-Things that would help more but need more than a weekend to do right:
-
 - **UMLS/MeSH-backed lookup** instead of a static word list, so terms newer
   than 2014-2017 (when the current dictionary was last updated) get caught
-  too. Needs a free NLM UTS account and considerably more setup — not worth
-  it unless the static list starts missing a lot of real terms.
-- **Body-system tagging + Obsidian export** — since your NCLEX vault is
-  organized by body system, the cleaner could ask "which system is this
-  lecture" and export cleaned transcripts as Obsidian-ready markdown with
-  frontmatter, dropped straight into the matching vault folder structure.
-- **Diff view** — show the raw and cleaned transcript side by side with
-  changes highlighted, so you can eyeball exactly what got changed instead
-  of trusting the output blind.
-- **Batch mode** — clean multiple lecture transcripts in one sitting instead
-  of one paste at a time.
+  too. Needs a free NLM UTS account and considerably more setup — hold off
+  unless the static list starts missing a lot of real terms.
+
 
