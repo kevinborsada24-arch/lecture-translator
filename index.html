@@ -236,6 +236,7 @@
 
           <div class="buttons">
             <button id="cleanBtn" class="primary">Clean transcript</button>
+            <button id="clearBtn">Clear / start new transcript</button>
           </div>
           <div id="status" class="status"></div>
 
@@ -449,6 +450,7 @@ const els = {
   title: document.getElementById("title"),
   system: document.getElementById("system"),
   cleanBtn: document.getElementById("cleanBtn"),
+  clearBtn: document.getElementById("clearBtn"),
   status: document.getElementById("status"),
   drop: document.getElementById("drop"),
   rules: document.getElementById("rules"),
@@ -1041,6 +1043,18 @@ els.showDiffBtn.addEventListener("click", () => {
 });
 
 // ---- Single-mode actions ----
+els.clearBtn.addEventListener("click", () => {
+  els.inputText.value = "";
+  els.title.value = "";
+  els.system.selectedIndex = 0;
+  els.outputText.value = "";
+  els.suggestions.innerHTML = "";
+  els.diffBox.innerHTML = "";
+  els.status.innerHTML = `<span class="ok">Cleared. Ready for the next transcript.</span>`;
+  setOutputDisplay("plain");
+  setView("input");
+});
+
 els.cleanBtn.addEventListener("click", () => {
   const raw = els.inputText.value;
   if (!raw.trim()) {
