@@ -65,6 +65,10 @@ async function cleanLecture() {
     }
     renderResult();
     els.resultCard.hidden = false;
+    // The preview's auto-grow measures scrollHeight, which reads as empty
+    // while the card is still display:none — so it's re-measured once the
+    // card is actually visible and laid out.
+    autoGrowMarkdownPreview();
     await wait(10);
     els.resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
@@ -88,10 +92,19 @@ function renderResult() {
     `${s.finalWordCount.toLocaleString()} words final`
   ];
   if (s.correctionsApplied) {
-    statItems.push(`${s.correctionsApplied.toLocaleString()} term${s.correctionsApplied === 1 ? "" : "s"} corrected`);
+    statItems.push(`${s.correctionsApplied.toLocaleString()} term${s.correctionsApplied === 1 ? "" : "s"} auto-corrected`);
+  }
+  if (s.phrasesForReview) {
+    statItems.push(`${s.phrasesForReview.toLocaleString()} phrase${s.phrasesForReview === 1 ? "" : "s"} flagged for review`);
   }
   els.resultStats.innerHTML = statItems.map(item => `<span class="stat">${item}</span>`).join("");
 
+  // "Auto-corrected" means a narrow, high-confidence fix was applied.
+  // "Flagged for review" means the opposite: the parser found something
+  // that LOOKS like a known speech-to-text error but was too risky to
+  // rewrite on its own — these are the ones that actually need a human
+  // to check the lecture. Both render in the same warning box since both
+  // are things worth reading before trusting the output.
   if (result.warnings && result.warnings.length) {
     els.resultWarnings.innerHTML = result.warnings.map(w => `<div>${w}</div>`).join("");
     els.resultWarnings.hidden = false;
@@ -100,6 +113,17 @@ function renderResult() {
   }
 
   els.markdownPreview.value = result.markdown;
+  autoGrowMarkdownPreview();
+}
+
+// The preview used to be a fixed-height box with its own internal
+// scrollbar, so reading a full lecture meant scrolling twice — once for
+// the page, once inside the box. Growing it to fit its content means the
+// page itself does the scrolling, which is the normal way to read a long
+// document.
+function autoGrowMarkdownPreview() {
+  els.markdownPreview.style.height = "auto";
+  els.markdownPreview.style.height = `${els.markdownPreview.scrollHeight + 2}px`;
 }
 
 function currentMarkdown() {
@@ -172,6 +196,7 @@ els.fileInput.addEventListener("change", event => {
   if (file) loadFile(file);
   event.target.value = "";
 });
+els.markdownPreview.addEventListener("input", autoGrowMarkdownPreview);
 els.downloadButton.addEventListener("click", downloadResult);
 els.copyButton.addEventListener("click", copyMarkdown);
 els.startOverButton.addEventListener("click", startOver);

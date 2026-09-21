@@ -326,13 +326,17 @@ textarea:focus-visible {
 .markdown-preview {
   display: block;
   width: 100%;
-  min-height: 340px;
+  min-height: 200px;
   margin-top: 16px;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   outline: 0;
-  resize: vertical;
+  /* Height is set by app.js to fit the content (auto-grow), so the page
+     scrolls normally instead of the box getting its own inner scrollbar
+     on top of the page's. No manual resize handle needed. */
+  resize: none;
+  overflow: hidden;
   background: var(--surface);
   color: var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -381,7 +385,7 @@ textarea:focus-visible {
   .result-card { padding: 16px; }
   .result-topbar { flex-direction: column; align-items: stretch; }
   .result-actions .button { flex: 1; }
-  .markdown-preview { min-height: 44vh; font-size: 13px; }
+  .markdown-preview { min-height: 160px; font-size: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

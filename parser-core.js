@@ -110,6 +110,57 @@
   const PANOPTO_HEADER_RE = /^powered by panopto$/i;
   const PANOPTO_NOTICE_RE = /^auto-?generated captions? may contain errors\.?$/i;
 
+  // If a transcript has already been through an export/cleanup pass before
+  // (this tool's own old output, or a similar one) it carries its own
+  // "# Title" + "## Cleaned Lecture Transcript" + disclaimer blockquote at
+  // the top. Left alone, that wrapper gets parsed as if it were lecture
+  // content and turns into a giant bogus heading. It's stripped before
+  // anything else runs.
+  const OLD_WRAPPER_SUBHEADING_RE = /^#{1,2}\s*cleaned lecture transcript\s*$/i;
+  const OLD_WRAPPER_QUOTE_RE = /^>\s*cleaned from a .*transcript.*$/i;
+
+  function stripOldExportWrapper(lines) {
+    const output = [...lines];
+    const removed = [];
+    // A leading "# <title>" line from a previous export.
+    if (output[0] && /^#\s+\S/.test(output[0].trim()) && !PANOPTO_HEADER_RE.test(output[0].trim())) {
+      removed.push(output.shift());
+    }
+    while (output.length) {
+      const trimmed = output[0].trim();
+      if (!trimmed || OLD_WRAPPER_SUBHEADING_RE.test(trimmed) || OLD_WRAPPER_QUOTE_RE.test(trimmed)) {
+        removed.push(output.shift());
+      } else {
+        break;
+      }
+    }
+    return { lines: output, removed };
+  }
+
+  // Panopto's own page chrome (Search / Details / Contents / Chapters /
+  // Bookmarks / etc.) sits as a block between the "Powered by Panopto"
+  // header and where the actual caption stream starts. Rather than trying
+  // to name every possible chrome line (a chapter list has arbitrary title
+  // text, for instance, so no fixed pattern catches it), the whole block is
+  // cut by position: everything from the header up to the caption notice,
+  // or up to the first real timestamp if there's no notice, is chrome.
+  function stripPanoptoChromeBlock(lines) {
+    const headerIndex = lines.findIndex(line => PANOPTO_HEADER_RE.test(line.trim()));
+    if (headerIndex === -1) return { lines, removed: [] };
+    const noticeIndex = lines.findIndex((line, i) => i > headerIndex && PANOPTO_NOTICE_RE.test(line.trim()));
+    let bodyStart;
+    if (noticeIndex !== -1) {
+      bodyStart = noticeIndex + 1;
+    } else {
+      const firstTimestamp = lines.findIndex((line, i) => i > headerIndex && (SINGLE_TIMESTAMP_RE.test(line.trim()) || RANGE_TIMESTAMP_RE.test(line.trim())));
+      bodyStart = firstTimestamp !== -1 ? firstTimestamp : headerIndex + 1;
+    }
+    return {
+      lines: [...lines.slice(0, headerIndex), ...lines.slice(bodyStart)],
+      removed: lines.slice(headerIndex, bodyStart)
+    };
+  }
+
   // Corrections carried over from real transcripts run through the
   // previous version of this tool (PATH 370 lectures). These are
   // deliberately narrow, high-confidence fixes for known speech-to-text
@@ -137,7 +188,49 @@
     { id: "transudate-transgene", find: /\btransgene\b/gi, replace: "transudate", when: /pleural effusion|exudate/i, confidence: 0.91 },
     { id: "vitamin-d-mindy", find: /\bMindy(?:'s)?\b/g, replace: "vitamin D", when: /calcium|parathyroid|absorb/i, confidence: 0.9 },
     { id: "ph-pitch", find: /\bpitch\b/gi, replace: "pH", when: /acid|base|enzyme|7\.3/i, confidence: 0.92 },
-    { id: "ards-art", find: /\barts?\b/gi, replace: "ARDS", when: /acute respiratory distress|refractory hypoxemia|respiratory distress syndrome/i, confidence: 0.95 }
+    { id: "ards-art", find: /\barts?\b/gi, replace: "ARDS", when: /acute respiratory distress|refractory hypoxemia|respiratory distress syndrome/i, confidence: 0.95 },
+    { id: "fev1", find: /\bEV1\b/g, replace: "FEV₁", when: /pulmonary function|spirometry|FVC|obstructive|restrictive|forced expiratory/i, confidence: 0.9 },
+    { id: "fvc", find: /\bFCC\b/g, replace: "FVC", when: /pulmonary function|spirometry|FEV|forced vital capacity|obstructive|restrictive/i, confidence: 0.88 },
+    { id: "pft", find: /\bPFC\b/g, replace: "PFT", when: /pulmonary function test|spirometry|FEV|FVC/i, confidence: 0.85 }
+  ];
+
+  // Terms found to be common speech-to-text confusions in real nursing
+  // lectures, but too risky to auto-replace: each one is also a real,
+  // independent medical term, so a blind find-and-replace could silently
+  // turn a correct statement into a wrong one. These are surfaced as
+  // review flags instead — "double-check this" rather than "fixed this" —
+  // which is the safer failure mode for anything touching patient care
+  // content. `when` still scopes the flag to transcripts where the mix-up
+  // is actually plausible, so an ordinary calcium lecture saying
+  // "hypocalcemia" doesn't get flagged just because the word exists.
+  const REVIEW_PATTERNS = [
+    {
+      find: /\bhypocalcemia\b/i,
+      when: /carbon dioxide|hypercapnia|hypoventilation|respiratory failure|PaCO2/i,
+      unless: /parathyroid|vitamin d|chvostek|trousseau|calcium (?:level|deficiency)/i,
+      message: "“Hypocalcemia” appears near CO2/respiratory-failure language — this is a known speech-to-text mix-up with “hypercapnia.” Verify against the lecture."
+    },
+    {
+      find: /\bcadmium\b/i,
+      when: /respirat|lung|ventilat|gas exchange|hypoxia|hypercapnia/i,
+      message: "“Cadmium” in a respiratory context is a known mis-transcription of “carbon dioxide.” Verify against the lecture."
+    },
+    {
+      find: /\bacetone\b/i,
+      when: /acid-?base|pH|alkalosis|bicarbonate|respiratory failure/i,
+      unless: /diabetic ketoacidosis|DKA|ketone|breath odor/i,
+      message: "“Acetone” appears in an acid-base discussion — this can be a mis-transcription of “acidosis.” Verify against the lecture."
+    },
+    {
+      find: /\bcannot take\b/i,
+      when: /acid-?base|pH|acidosis|bicarbonate/i,
+      message: "“Cannot take” near acid-base language may be a mis-transcription of “alkalosis.” Verify against the lecture."
+    },
+    {
+      find: /\bARDS\b/,
+      when: /\bPEEP\b|surfactant|hyaline/i,
+      message: "This section covers ARDS with PEEP/surfactant/hyaline membrane terminology — a frequent trouble spot for speech-to-text. Read this section closely against your notes."
+    }
   ];
 
   // Phrases that signal the professor is flagging something as testable.
@@ -147,14 +240,20 @@
 
   // Section categories, in the order they should appear when several are
   // detected with equal first-appearance order preserved otherwise.
+  // Tightened after real-transcript testing showed generic connectors
+  // ("leads to," "results in," "due to," "can lead to") firing on almost
+  // any clinical sentence and scattering wrong headings throughout the
+  // note. Every trigger left here is a phrase that's specific to its
+  // category, not just common in clinical speech generally — precision
+  // over recall, since a wrong heading is worse than no heading.
   const SECTION_RULES = [
-    { id: "definition", heading: "Definition", test: /\bis defined as\b|\brefers to\b|\bby definition\b|\bwhat is\b.{0,25}\?|\bmeans that\b/i },
-    { id: "causes", heading: "Causes & Risk Factors", test: /\bcause[sd]? by\b|\brisk factors?\b|\betiology\b|\bpredispos(?:e|ing|ition)\b|\bdue to\b|\bassociated with\b.{0,40}\brisk\b/i },
-    { id: "pathophysiology", heading: "Pathophysiology", test: /\bpathophysiology\b|\bleads? to\b|\bresults? in\b|\bmechanism\b|\boccurs when\b|\bcascade\b|\bcompensat(?:e|ory|ion)\b/i },
-    { id: "signs_symptoms", heading: "Signs & Symptoms", test: /\bsigns? and symptoms?\b|\bpresents? with\b|\bclinical (?:manifestations?|presentation)\b|\bpatients? (?:will |may |often |typically )?(?:present|exhibit|show|report|complain)/i },
+    { id: "definition", heading: "Definition", test: /\bis defined as\b|\bby definition\b/i },
+    { id: "causes", heading: "Causes & Risk Factors", test: /\bcause[sd]? by\b|\brisk factors?\b|\betiology\b|\bpredispos(?:e|ing|ition)\b/i },
+    { id: "pathophysiology", heading: "Pathophysiology", test: /\bpathophysiology\b|\bunderlying mechanism\b|\boccurs when\b|\bvicious cycle\b|\bcompensat(?:e|ory|ion)\b/i },
+    { id: "signs_symptoms", heading: "Signs & Symptoms", test: /\bsigns? and symptoms?\b|\bpresents? with\b|\bclinical (?:manifestations?|presentation)\b|\b(?:patients?|they)\s+(?:will |may |often |typically )?(?:present|exhibit|show|report|complain)/i },
     { id: "diagnostics", heading: "Diagnostics & Lab Findings", test: /\bdiagnos(?:is|ed|tic)\b|\blab(?:oratory)? (?:values?|findings?|results?|work-?up)\b|\bx-?ray\b|\bimaging\b|\bABG\b|\bwill (?:show|reveal)\b.{0,30}\b(?:elevated|decreased|low|high)\b/i },
     { id: "treatment", heading: "Treatment & Management", test: /\btreatment\b|\bmanagement\b|\bmedications?\b|\badminister\b|\btherapy\b|\bfirst-?line\b|\bintervention\b/i },
-    { id: "complications", heading: "Complications", test: /\bcomplications?\b|\bif (?:left )?untreated\b|\bcan (?:lead|progress|result) (?:to|in)\b/i },
+    { id: "complications", heading: "Complications", test: /\bcomplications?\b|\bif (?:left )?untreated\b/i },
     { id: "nursing", heading: "Nursing Considerations", test: /\bnursing (?:consideration|intervention|priorit(?:y|ies)|assessment)s?\b|\bnurse'?s? role\b|\bmonitor (?:for|the)\b|\bassess (?:for|the)\b|\bpriority (?:action|intervention)\b/i }
   ];
 
@@ -513,6 +612,22 @@
     return { text: value, corrections };
   }
 
+  // Runs REVIEW_PATTERNS against one sentence in its document context.
+  // Unlike applyMedicalRules, this never changes the text — it only
+  // reports a phrase worth a second look, since these are cases where a
+  // silent auto-replace is more likely to introduce a wrong "correction"
+  // than to fix a real error.
+  function findReviewFlags(text, context) {
+    const flags = [];
+    for (const pattern of REVIEW_PATTERNS) {
+      if (!pattern.find.test(text)) continue;
+      if (pattern.when && !pattern.when.test(context)) continue;
+      if (pattern.unless && pattern.unless.test(context)) continue;
+      flags.push(pattern.message);
+    }
+    return flags;
+  }
+
   // ---------------------------------------------------------------------
   // Stage 7 — punctuation & capitalization
   // ---------------------------------------------------------------------
@@ -589,13 +704,17 @@
     return confirmed;
   }
 
-  // Groups sentences into { heading, paragraphs, lists } sections. A new
-  // heading only starts once two consecutive sentences agree on a category,
-  // which keeps a single stray keyword from spawning a throwaway section.
+  // Groups sentences into { heading, paragraphs, lists } sections.
+  // SECTION_RULES is deliberately narrow (see above) so that a match is
+  // trustworthy on its own — an explicit topic-announcement sentence like
+  // "let's talk about clinical manifestation" should start a section even
+  // as a single isolated hit, so this does not require neighbor
+  // confirmation the way the ordinal-list check does.
   function detectSections(sentences) {
     const sections = [];
     let current = null;
     const confirmedOrdinals = computeConfirmedOrdinals(sentences);
+    const categories = sentences.map(item => (item.structural ? null : classifySentence(item.text)));
 
     function ensureSection(headingId) {
       if (current && current.categoryId === headingId) return current;
@@ -620,7 +739,7 @@
         continue;
       }
 
-      const category = classifySentence(item.text);
+      const category = categories[i];
       if (category && category !== (current && current.categoryId)) {
         ensureSection(category);
       } else if (!current) {
@@ -832,22 +951,23 @@
         title: "Cleaned Lecture",
         filename: "Cleaned_Lecture.md",
         markdown: "",
-        stats: { wordsRemoved: 0, sectionsCreated: 0, finalWordCount: 0, originalWordCount: 0, correctionsApplied: 0 },
+        stats: { wordsRemoved: 0, sectionsCreated: 0, finalWordCount: 0, originalWordCount: 0, correctionsApplied: 0, phrasesForReview: 0 },
         warnings: ["Nothing was pasted, so there is nothing to clean."]
       };
     }
 
     const originalWordCount = wordCount(normalized);
-    let rawLines = normalized.split("\n");
-    const panoptoTitle = detectPanoptoTitle(rawLines);
-    if (panoptoTitle.index !== -1) rawLines = rawLines.filter((_, i) => i !== panoptoTitle.index);
-    const format = detectFormat(rawLines);
-    const { lines: artifactFreeLines } = removeArtifacts(rawLines);
+    const { lines: unwrappedLines } = stripOldExportWrapper(normalized.split("\n"));
+    const panoptoTitle = detectPanoptoTitle(unwrappedLines);
+    const { lines: chromeFreeLines } = stripPanoptoChromeBlock(unwrappedLines);
+    const format = detectFormat(chromeFreeLines);
+    const { lines: artifactFreeLines } = removeArtifacts(chromeFreeLines);
     const units = segmentTranscript(artifactFreeLines, format);
     const speakerProcessed = processSpeakers(units);
     const sentencesRaw = reconstructSentences(speakerProcessed, format);
 
     const corrections = [];
+    const reviewFlagSet = new Set();
     const activeRules = selectActiveMedicalRules(normalized);
     const cleanedSentences = sentencesRaw.map(item => {
       if (item.structural) return item;
@@ -855,6 +975,7 @@
       const corrected = applyMedicalRules(filtered, activeRules);
       corrections.push(...corrected.corrections);
       const punctuated = normalizePunctuation(corrected.text);
+      for (const flag of findReviewFlags(punctuated, normalized)) reviewFlagSet.add(flag);
       return { ...item, text: punctuated };
     }).filter(item => item.text && item.text.trim());
 
@@ -871,6 +992,8 @@
     if (corrections.some(c => c.numeric)) {
       warnings.push("A numeric value was auto-corrected from a likely captioning error — verify it against the lecture.");
     }
+    const reviewFlags = [...reviewFlagSet];
+    warnings.push(...reviewFlags);
 
     return {
       title,
@@ -878,12 +1001,14 @@
       markdown,
       format,
       titleSource,
+      reviewFlags,
       stats: {
         wordsRemoved,
         sectionsCreated: sections.filter(s => s.heading).length,
         finalWordCount,
         originalWordCount,
-        correctionsApplied: corrections.length
+        correctionsApplied: corrections.length,
+        phrasesForReview: reviewFlags.length
       },
       warnings
     };
@@ -893,7 +1018,8 @@
     process,
     // Exposed for the test suite.
     normalizeInput, detectFormat, segmentTranscript, removeArtifacts, processSpeakers,
-    reconstructSentences, splitIntoSentences, removeFillers, selectActiveMedicalRules, applyMedicalRules, normalizePunctuation,
+    stripOldExportWrapper, stripPanoptoChromeBlock,
+    reconstructSentences, splitIntoSentences, removeFillers, selectActiveMedicalRules, applyMedicalRules, findReviewFlags, normalizePunctuation,
     detectSections, inferTitle, detectPanoptoTitle, cleanTitleText, generateMarkdown, generateFilename,
     validateResult, PROTECTED_TERMS
   };

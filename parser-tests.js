@@ -313,8 +313,9 @@ test("Panopto: the title echoed after the player header is used as the title, no
   ].join("\n");
   const result = LectureParser.process(input);
   assert.strictEqual(result.title, "Chronic Obstructive Pulmonary Disease");
-  assert.ok(!result.markdown.includes("Chronic Obstructive Pulmonary Disease\n\nCOPD"),
-    "the echoed title line should not leak into the body: " + result.markdown);
+  const bodyOnly = result.markdown.replace(/^#[^\n]*\n/, "");
+  assert.ok(!bodyOnly.includes("Chronic Obstructive Pulmonary Disease"),
+    "the echoed title line should not also appear duplicated in the body: " + result.markdown);
 });
 
 // ---------------------------------------------------------------------
@@ -327,6 +328,51 @@ test("Corrections: known ASR errors on medical terms are fixed", () => {
   assert.ok(result.markdown.includes("carbon dioxide"), "camera dioxide should become carbon dioxide: " + result.markdown);
   assert.ok(result.markdown.includes("7.35 to 7.45"), "the pH range should be corrected: " + result.markdown);
   assert.ok(result.warnings.some(w => /numeric value was auto-corrected/i.test(w)));
+});
+
+// ---------------------------------------------------------------------
+// Previously-exported wrapper / arbitrary Panopto chrome block
+// ---------------------------------------------------------------------
+
+test("Old export wrapper: a re-pasted previous cleaned output doesn't become a giant bogus heading", () => {
+  const input = [
+    "# ASthma",
+    "## Cleaned Lecture Transcript",
+    "",
+    "> Cleaned from a Buzz/Whisper transcript. Timestamps and professor wording/repetition are retained as much as possible.",
+    "",
+    "Powered by Panopto",
+    "Asthma",
+    "Auto-generated captions may contain errors.",
+    "0:00",
+    "Asthma is a reversible obstructive airway disease."
+  ].join("\n");
+  const result = LectureParser.process(input);
+  assert.strictEqual(result.title, "Asthma");
+  assert.ok(!/Cleaned Lecture Transcript/i.test(result.markdown), "old wrapper subheading should not appear: " + result.markdown);
+  assert.ok(!/Cleaned from a/i.test(result.markdown), "old wrapper disclaimer should not appear: " + result.markdown);
+});
+
+test("Chrome block: an arbitrary chapter list between the header and the transcript is dropped by position, not by name", () => {
+  const input = [
+    "Powered by Panopto",
+    "Acute Respiratory Distress Syndrome",
+    "Search this transcript",
+    "Details",
+    "Contents",
+    "Chapters",
+    "Introduction 0:00",
+    "Pathophysiology 5:32",
+    "PEEP and Ventilation 15:47",
+    "Auto-generated captions may contain errors.",
+    "0:00",
+    "ARDS is caused by diffuse alveolar damage and surfactant dysfunction."
+  ].join("\n");
+  const result = LectureParser.process(input);
+  assert.strictEqual(result.title, "Acute Respiratory Distress Syndrome");
+  assert.ok(!/Introduction/.test(result.markdown), "chapter list titles are chrome, not content: " + result.markdown);
+  assert.ok(!/\d{1,2}:\d{2}/.test(result.markdown), "chapter timestamps should not remain: " + result.markdown);
+  assert.ok(/diffuse alveolar damage/.test(result.markdown));
 });
 
 // ---------------------------------------------------------------------
@@ -367,6 +413,61 @@ test("Artifacts: a trailing row of bare bookmark timestamps is dropped, not left
   const input = "Asthma is caused by chronic airway inflammation and bronchoconstriction.\n0:09 1:57 12:18 13:12";
   const result = LectureParser.process(input);
   assert.ok(!/\d{1,2}:\d{2}/.test(result.markdown), "a line of only timestamps should be dropped entirely: " + result.markdown);
+});
+
+// ---------------------------------------------------------------------
+// Review flags for risky, ambiguous speech-to-text confusions
+// ---------------------------------------------------------------------
+// These are terms the parser deliberately does NOT auto-correct, because
+// each one is also a real independent medical term — a blind replace
+// risks turning a correct statement into a wrong one. They're flagged for
+// the person to verify instead.
+
+test("Review flags: hypocalcemia near CO2/respiratory language is flagged, not silently rewritten", () => {
+  const input = "The patient has hypocalcemia because the lungs cannot blow off enough carbon dioxide, leading to respiratory failure.";
+  const result = LectureParser.process(input);
+  assert.ok(result.markdown.includes("hypocalcemia"), "should not be silently rewritten: " + result.markdown);
+  assert.ok(result.reviewFlags.some(f => /hypercapnia/i.test(f)));
+});
+
+test("Review flags: hypocalcemia in a genuine calcium/parathyroid lecture is NOT flagged", () => {
+  const input = "Hypocalcemia occurs when parathyroid hormone is low, causing decreased calcium absorption and a positive Chvostek sign.";
+  const result = LectureParser.process(input);
+  assert.strictEqual(result.reviewFlags.length, 0, "a real calcium lecture should not be flagged: " + JSON.stringify(result.reviewFlags));
+});
+
+test("Review flags: cadmium in a respiratory context is flagged as a likely carbon dioxide mix-up", () => {
+  const input = "Cadmium is hiding in the body causing gas exchange problems in the lungs.";
+  const result = LectureParser.process(input);
+  assert.ok(result.reviewFlags.some(f => /carbon dioxide/i.test(f)));
+});
+
+test("Review flags: acetone in an acid-base discussion is flagged, but a real DKA mention is not", () => {
+  const acidBase = LectureParser.process("So Mr. Jones has acetone because carbon dioxide is high, and the pH drops.");
+  assert.ok(acidBase.reviewFlags.some(f => /acidosis/i.test(f)));
+  const dka = LectureParser.process("In diabetic ketoacidosis, acetone breath is a classic finding from ketone production.");
+  assert.strictEqual(dka.reviewFlags.length, 0, "a real DKA/acetone-breath mention should not be flagged: " + JSON.stringify(dka.reviewFlags));
+});
+
+test("Review flags: ARDS with PEEP/surfactant/hyaline terminology is flagged for a close read", () => {
+  const input = "ARDS causes diffuse alveolar damage. PEEP and surfactant therapy are used with concern for hyaline membrane formation.";
+  const result = LectureParser.process(input);
+  assert.ok(result.reviewFlags.some(f => /PEEP\/surfactant\/hyaline/i.test(f)));
+});
+
+// ---------------------------------------------------------------------
+// Safe, unambiguous abbreviation corrections
+// ---------------------------------------------------------------------
+
+test("Corrections: EV1/FCC/PFC are corrected to FEV₁/FVC/PFT in a pulmonary-function context", () => {
+  const result = LectureParser.process("Right now, if you check yours, its EV1 to FCC ratio on the pulmonary function test.");
+  assert.ok(result.markdown.includes("FEV₁"), "expected FEV₁: " + result.markdown);
+  assert.ok(result.markdown.includes("FVC"), "expected FVC: " + result.markdown);
+});
+
+test("Corrections: PFC is corrected to PFT when spirometry values are present", () => {
+  const result = LectureParser.process("The PFC showed an obstructive pattern with reduced FEV1.");
+  assert.ok(result.markdown.includes("PFT"), "expected PFT: " + result.markdown);
 });
 
 // ---------------------------------------------------------------------
