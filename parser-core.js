@@ -45,6 +45,7 @@
   const ARTIFACT_LINE_RES = [
     /^powered by panopto$/i,
     /^search(?: this)? (?:transcript|recording|video)$/i,
+    /^search$/i,
     /^auto-?generated captions? may contain errors\.?$/i,
     /^click to seek$/i,
     /^click here to seek$/i,
@@ -95,7 +96,12 @@
   // Enumeration/list-lead phrases used to detect "include: a, b, and c".
   const ENUMERATION_LEAD_RE = /^(.*?\b(?:includes|including|include|such as))\b:?\s*(.+)$/i;
 
-  const ORDINAL_RE = /^(First|Second|Third|Fourth|Fifth|Sixth|Next|Then|Finally|Lastly|Last)\b[,:]?\s+/i;
+  // Deliberately excludes "Then" and "Next" — in spoken lecture style those
+  // are just narrative connectors ("Then we have...", "Then you have it
+  // again...") almost never an actual enumerated sequence, and including
+  // them turned ordinary run-on speech into a scatter of bogus one-item
+  // numbered lists.
+  const ORDINAL_RE = /^(First|Second|Third|Fourth|Fifth|Sixth|Finally|Lastly|Last)\b[,:]?\s+/i;
 
   // Panopto repeats the lecture's title on every screen, right after the
   // player chrome and before the caption notice/timestamps start. When
@@ -310,7 +316,11 @@
       removedLog.push(match);
       return "";
     }).replace(/\s{2,}/g, " ").trim();
-    return cleaned || line;
+    // Deliberately NOT falling back to the original line when cleaned is
+    // empty: an empty result means the whole line was timestamps (e.g. a
+    // Panopto bookmark row: "0:09 1:57 12:18 13:12") with nothing else on
+    // it, which is chrome, not content — dropping it is correct.
+    return cleaned;
   }
 
   // ---------------------------------------------------------------------
@@ -558,12 +568,34 @@
     return null;
   }
 
+  // A single sentence that happens to start with "First," is usually just
+  // that word used conversationally, not the start of a real list. Only
+  // treat a run of ORDINAL_RE matches as an actual numbered sequence once
+  // at least two sentences in a row carry an ordinal marker.
+  function computeConfirmedOrdinals(sentences) {
+    const confirmed = new Array(sentences.length).fill(false);
+    let runStart = -1;
+    for (let i = 0; i <= sentences.length; i++) {
+      const isOrdinal = i < sentences.length && !sentences[i].structural && ORDINAL_RE.test(sentences[i].text);
+      if (isOrdinal) {
+        if (runStart === -1) runStart = i;
+      } else {
+        if (runStart !== -1 && i - runStart >= 2) {
+          for (let j = runStart; j < i; j++) confirmed[j] = true;
+        }
+        runStart = -1;
+      }
+    }
+    return confirmed;
+  }
+
   // Groups sentences into { heading, paragraphs, lists } sections. A new
   // heading only starts once two consecutive sentences agree on a category,
   // which keeps a single stray keyword from spawning a throwaway section.
   function detectSections(sentences) {
     const sections = [];
     let current = null;
+    const confirmedOrdinals = computeConfirmedOrdinals(sentences);
 
     function ensureSection(headingId) {
       if (current && current.categoryId === headingId) return current;
@@ -607,8 +639,8 @@
         continue;
       }
 
-      const ordinalMatch = item.text.match(ORDINAL_RE);
-      if (ordinalMatch) {
+      if (confirmedOrdinals[i]) {
+        const ordinalMatch = item.text.match(ORDINAL_RE);
         current.blocks.push({ type: "numbered", text: item.text.slice(ordinalMatch[0].length) });
         continue;
       }
@@ -702,29 +734,41 @@
   // Stage 10 — Markdown generation
   // ---------------------------------------------------------------------
 
-  function renderBlock(block) {
-    if (block.type === "bullet") return `- ${block.text}`;
-    if (block.type === "numbered") return null; // handled as a run below
-    if (block.type === "quote") return `> **Professor emphasized:** ${block.text}`;
-    return block.text;
+  function capitalizeFirst(text) {
+    const index = text.search(/[a-zA-Z]/);
+    if (index === -1) return text;
+    return text.slice(0, index) + text[index].toUpperCase() + text.slice(index + 1);
   }
 
+  // Bullets and numbered items render as a single tight list (one newline
+  // between items) rather than each item getting its own blank-line
+  // paragraph gap — otherwise a five-item list reads as five disconnected
+  // paragraphs instead of a list.
   function renderBlocks(blocks) {
-    const lines = [];
+    const segments = [];
+    let bulletRun = [];
     let numberedRun = [];
+    const flushBullets = () => {
+      if (!bulletRun.length) return;
+      segments.push(bulletRun.map(text => `- ${text}`).join("\n"));
+      bulletRun = [];
+    };
     const flushNumbered = () => {
       if (!numberedRun.length) return;
-      numberedRun.forEach((text, index) => lines.push(`${index + 1}. ${text}`));
+      segments.push(numberedRun.map((text, index) => `${index + 1}. ${capitalizeFirst(text)}`).join("\n"));
       numberedRun = [];
     };
     for (const block of blocks) {
-      if (block.type === "numbered") { numberedRun.push(block.text); continue; }
+      if (block.type === "bullet") { flushNumbered(); bulletRun.push(block.text); continue; }
+      if (block.type === "numbered") { flushBullets(); numberedRun.push(block.text); continue; }
+      flushBullets();
       flushNumbered();
-      const rendered = renderBlock(block);
-      if (rendered) lines.push(rendered);
+      if (block.type === "quote") segments.push(`> **Professor emphasized:** ${block.text}`);
+      else segments.push(block.text);
     }
+    flushBullets();
     flushNumbered();
-    return lines.join("\n\n");
+    return segments.join("\n\n");
   }
 
   function generateMarkdown(title, sections) {
