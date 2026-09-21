@@ -267,6 +267,30 @@ test("No obvious title: falls back to a generic title without throwing", () => {
 });
 
 // ---------------------------------------------------------------------
+// Final-review handoff
+// ---------------------------------------------------------------------
+
+test("Review package: includes both the edited draft and original transcript", () => {
+  const review = LectureParser.generateReviewPackage({
+    title: "Kidney Introduction",
+    cleanedMarkdown: "# Kidney Introduction\n\nThe nephron filters blood.",
+    originalTranscript: "the nephron filters block",
+    warnings: ["Verify a numeric value."]
+  });
+  assert.ok(review.includes("The nephron filters blood."));
+  assert.ok(review.includes("the nephron filters block"));
+  assert.ok(review.includes("Verify a numeric value."));
+  assert.ok(review.includes("without adding unsupported facts"));
+});
+
+test("Review package: creates a safe, automatically named text file", () => {
+  assert.strictEqual(
+    LectureParser.generateReviewFilename("Kidney: Intro / GFR"),
+    "Kidney_Intro_GFR_Final_Review.txt"
+  );
+});
+
+// ---------------------------------------------------------------------
 // SRT / WebVTT
 // ---------------------------------------------------------------------
 
@@ -468,6 +492,80 @@ test("Corrections: EV1/FCC/PFC are corrected to FEV₁/FVC/PFT in a pulmonary-fu
 test("Corrections: PFC is corrected to PFT when spirometry values are present", () => {
   const result = LectureParser.process("The PFC showed an obstructive pattern with reduced FEV1.");
   assert.ok(result.markdown.includes("PFT"), "expected PFT: " + result.markdown);
+});
+
+test("Corrections: exact respiratory caption failures are repaired in respiratory context", () => {
+  const input = "Carbon dioxide is a weak asset. The cilia form a miracle ciliary escalator. COPD hyperinflation creates a barren chance.";
+  const result = LectureParser.process(input);
+  assert.ok(/weak acid/i.test(result.markdown), result.markdown);
+  assert.ok(/mucociliary escalator/i.test(result.markdown), result.markdown);
+  assert.ok(/barrel chest/i.test(result.markdown), result.markdown);
+});
+
+test("Corrections: paired hypercapnia caption failure is repaired only when the full cue is present", () => {
+  const input = "In respiratory failure we have hypocalcemia. Cadmium means carbon dioxide, so the blood level rises.";
+  const result = LectureParser.process(input);
+  assert.ok(/hypercapnia/i.test(result.markdown), result.markdown);
+  assert.ok(/Capnia means carbon dioxide/i.test(result.markdown), result.markdown);
+  const calcium = LectureParser.process("Hypocalcemia can result from low parathyroid hormone and low vitamin D.");
+  assert.ok(/Hypocalcemia/.test(calcium.markdown), calcium.markdown);
+});
+
+test("Corrections: exact acid-base caption failures are repaired", () => {
+  const input = "In acid-base balance, if the p h is below 7.35, we call it acetone sits. If it is above 7.45, it's a cannot take. Hyperventilation keeps the carbon dioxide during compensation.";
+  const result = LectureParser.process(input);
+  assert.ok(/pH is below 7\.35/.test(result.markdown), result.markdown);
+  assert.ok(/we call it acidosis/i.test(result.markdown), result.markdown);
+  assert.ok(/we call it alkalosis/i.test(result.markdown), result.markdown);
+  assert.ok(/hypoventilation retains carbon dioxide/i.test(result.markdown), result.markdown);
+});
+
+test("Corrections: exact pneumothorax and ARDS caption failures are repaired", () => {
+  const pneumothorax = LectureParser.process("In the pleural cavity this no more tracks represents a pneumothorax and collapsed lung.");
+  assert.ok(!/no more tracks/i.test(pneumothorax.markdown), pneumothorax.markdown);
+  assert.ok(/pneumothorax/i.test(pneumothorax.markdown), pneumothorax.markdown);
+
+  const ards = LectureParser.process("ARDS releases histamine and Brando priming. Protein creates a higher name memory. PEEP means positive in explanatory pressure on the ventilator.");
+  assert.ok(/bradykinin/i.test(ards.markdown), ards.markdown);
+  assert.ok(/hyaline membrane/i.test(ards.markdown), ards.markdown);
+  assert.ok(/positive end-expiratory pressure/i.test(ards.markdown), ards.markdown);
+});
+
+test("Corrections: common nephron anatomy caption failures are repaired", () => {
+  const input = "The kidney nephron contains the Balmain capsule, proximal to balance, loop of Henry, restart to release, and glomus. Blood enters through the a friend and leaves through the efferent arteriole.";
+  const result = LectureParser.process(input);
+  assert.ok(/Bowman's capsule/i.test(result.markdown), result.markdown);
+  assert.ok(/proximal tubule/i.test(result.markdown), result.markdown);
+  assert.ok(/loop of Henle/i.test(result.markdown), result.markdown);
+  assert.ok(/distal tubules/i.test(result.markdown), result.markdown);
+  assert.ok(/glomerulus/i.test(result.markdown), result.markdown);
+  assert.ok(/afferent arteriole/i.test(result.markdown), result.markdown);
+});
+
+test("Corrections: common kidney output, lab, and unit caption failures are repaired", () => {
+  const input = "The kidney has low during output and high blood loss. Preload and stroke volume fall, so Project output changes. Normally urine is 1 to 2 million or 800ml to 2000mg. GFR is 120 milligram per minute. We measure serum platinum and serum un. During three hours the urine was 16 millimeter, predicting 480 mL per day.";
+  const result = LectureParser.process(input);
+  assert.ok(/low urine output/i.test(result.markdown), result.markdown);
+  assert.ok(/high blood volume/i.test(result.markdown), result.markdown);
+  assert.ok(/cardiac output/i.test(result.markdown), result.markdown);
+  assert.ok(/1 to 2 liters/i.test(result.markdown), result.markdown);
+  assert.ok(/800 mL to 2000 mL/i.test(result.markdown), result.markdown);
+  assert.ok(/120 mL\/min/i.test(result.markdown), result.markdown);
+  assert.ok(/serum creatinine/i.test(result.markdown), result.markdown);
+  assert.ok(/BUN/.test(result.markdown), result.markdown);
+  assert.ok(/60 mL/.test(result.markdown), result.markdown);
+});
+
+test("Sections: a dismissed treatment topic does not create a false Treatment heading", () => {
+  const input = "Here is the surgical treatment. We're not gonna go through it. What we are going to cover is nephron anatomy. First and foremost, kidneys work like a waste management company.";
+  const result = LectureParser.process(input);
+  assert.ok(!/## Treatment & Management/.test(result.markdown), result.markdown);
+});
+
+test("Lists: clause fragments after including are not converted into a false bullet list", () => {
+  const input = "The kidney filtered waste material here, including water, into Bowman's capsule, and rid of some of it through excretion.";
+  const result = LectureParser.process(input);
+  assert.ok(!/^- /m.test(result.markdown), result.markdown);
 });
 
 // ---------------------------------------------------------------------

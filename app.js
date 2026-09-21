@@ -3,7 +3,7 @@
 const els = Object.fromEntries([
   "inputCard", "inputText", "inputCount", "dropHint", "addFileButton", "clearButton", "cleanButton",
   "fileInput", "errorBanner", "resultCard", "titleInput", "resultStats", "resultWarnings",
-  "markdownPreview", "downloadButton", "copyButton", "startOverButton", "toast"
+  "markdownPreview", "downloadButton", "copyButton", "reviewFileButton", "startOverButton", "toast"
 ].map(id => [id, document.getElementById(id)]));
 
 let result = null;
@@ -106,9 +106,15 @@ function renderResult() {
   // to check the lecture. Both render in the same warning box since both
   // are things worth reading before trusting the output.
   if (result.warnings && result.warnings.length) {
-    els.resultWarnings.innerHTML = result.warnings.map(w => `<div>${w}</div>`).join("");
+    const warningNodes = result.warnings.map(warning => {
+      const line = document.createElement("div");
+      line.textContent = warning;
+      return line;
+    });
+    els.resultWarnings.replaceChildren(...warningNodes);
     els.resultWarnings.hidden = false;
   } else {
+    els.resultWarnings.replaceChildren();
     els.resultWarnings.hidden = true;
   }
 
@@ -147,8 +153,30 @@ function downloadResult() {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   showToast("Cleaned lecture downloaded");
+}
+
+function downloadReviewFile() {
+  if (!result) return;
+  const title = els.titleInput.value.trim() || result.title;
+  const contents = window.LectureParser.generateReviewPackage({
+    title,
+    cleanedMarkdown: currentMarkdown(),
+    originalTranscript: els.inputText.value,
+    warnings: result.warnings
+  });
+  const filename = window.LectureParser.generateReviewFilename(title);
+  const blob = new Blob([contents], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast("Final review file downloaded");
 }
 
 async function copyMarkdown() {
@@ -199,6 +227,7 @@ els.fileInput.addEventListener("change", event => {
 els.markdownPreview.addEventListener("input", autoGrowMarkdownPreview);
 els.downloadButton.addEventListener("click", downloadResult);
 els.copyButton.addEventListener("click", copyMarkdown);
+els.reviewFileButton.addEventListener("click", downloadReviewFile);
 els.startOverButton.addEventListener("click", startOver);
 
 for (const evt of ["dragenter", "dragover"]) {

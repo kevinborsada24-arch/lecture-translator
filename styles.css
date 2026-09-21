@@ -323,6 +323,32 @@ textarea:focus-visible {
   line-height: 1.55;
 }
 
+.review-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.review-panel div { min-width: 0; }
+.review-panel strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-size: 13px;
+}
+.review-panel span {
+  display: block;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.review-panel .button { flex: 0 0 auto; }
+
 .markdown-preview {
   display: block;
   width: 100%;
@@ -385,6 +411,8 @@ textarea:focus-visible {
   .result-card { padding: 16px; }
   .result-topbar { flex-direction: column; align-items: stretch; }
   .result-actions .button { flex: 1; }
+  .review-panel { flex-direction: column; align-items: stretch; }
+  .review-panel .button { width: 100%; }
   .markdown-preview { min-height: 160px; font-size: 13px; }
 }
 

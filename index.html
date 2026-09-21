@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0d12">
   <title>Lecture Cleaner</title>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=10">
 </head>
 <body>
   <div class="shell">
@@ -51,7 +51,7 @@
 
     <section id="resultCard" class="card result-card" aria-labelledby="resultHeading" hidden>
       <div class="result-topbar">
-        <span class="success-label"><span class="success-check" aria-hidden="true">✓</span> Cleaned</span>
+        <span class="success-label"><span class="success-check" aria-hidden="true">✓</span> Cleaned draft</span>
         <div class="result-actions">
           <button id="downloadButton" type="button" class="button button-primary">Download Cleaned Lecture</button>
           <button id="copyButton" type="button" class="button button-secondary">Copy Markdown</button>
@@ -63,6 +63,14 @@
 
       <div id="resultStats" class="stats"></div>
       <p id="resultWarnings" class="warnings" hidden></p>
+
+      <div class="review-panel">
+        <div>
+          <strong>Want the most accurate final version?</strong>
+          <span>Download one review file and upload it to ChatGPT. It includes both the original transcript and this cleaned draft.</span>
+        </div>
+        <button id="reviewFileButton" type="button" class="button button-secondary">Download Final Review File</button>
+      </div>
 
       <textarea
         id="markdownPreview"
@@ -80,7 +88,7 @@
   <input id="fileInput" type="file" accept=".txt,.md,.srt,.vtt,text/plain,text/markdown" hidden>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script src="parser-core.js?v=7"></script>
-  <script src="app.js?v=7"></script>
+  <script src="parser-core.js?v=10"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

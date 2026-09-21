@@ -21,6 +21,10 @@ Claude. Everything runs in the browser. No upload, no backend, no AI API.
    preview appear beneath the input.
 4. **Download Cleaned Lecture** or **Copy Markdown**. The title field is
    editable and feeds both the download filename and the `#` heading.
+5. For a higher-accuracy final pass, choose **Download Final Review File**
+   and upload that single `.txt` file to ChatGPT. It contains the original
+   Panopto transcript, the editable cleaned draft, automatic review notes,
+   and strict instructions not to invent facts.
 
 ## How the parser works, honestly
 
@@ -73,5 +77,5 @@ git push
 Settings → Pages → Source → Deploy from branch → `main` → `/ (root)`.
 Live at `https://kevinborsada24-arch.github.io/lecture-translator/`.
 
-Local assets are versioned with a query string (`styles.css?v=7`, etc.) —
+Local assets are versioned with a query string (`styles.css?v=10`, etc.) —
 bump the version on any future edit to bust GitHub Pages' cache.

@@ -191,7 +191,53 @@
     { id: "ards-art", find: /\barts?\b/gi, replace: "ARDS", when: /acute respiratory distress|refractory hypoxemia|respiratory distress syndrome/i, confidence: 0.95 },
     { id: "fev1", find: /\bEV1\b/g, replace: "FEV₁", when: /pulmonary function|spirometry|FVC|obstructive|restrictive|forced expiratory/i, confidence: 0.9 },
     { id: "fvc", find: /\bFCC\b/g, replace: "FVC", when: /pulmonary function|spirometry|FEV|forced vital capacity|obstructive|restrictive/i, confidence: 0.88 },
-    { id: "pft", find: /\bPFC\b/g, replace: "PFT", when: /pulmonary function test|spirometry|FEV|FVC/i, confidence: 0.85 }
+    { id: "pft", find: /\bPFC\b/g, replace: "PFT", when: /pulmonary function test|spirometry|FEV|FVC/i, confidence: 0.85 },
+    { id: "ph-spaced", find: /\bp\s+h\b/gi, replace: "pH", when: /acid-?base|7\.3|7\.4/i, confidence: 0.99 },
+    { id: "weak-acid", find: /\bweak asset\b/gi, replace: "weak acid", when: /carbon dioxide|acid-?base/i, confidence: 0.99 },
+    { id: "mucociliary", find: /\bmiracle ciliary escalator\b/gi, replace: "mucociliary escalator", when: /cilia|mucus|bronch/i, confidence: 0.99 },
+    { id: "barrel-chest", find: /\bbarren chance\b/gi, replace: "barrel chest", when: /obstructive|COPD|hyperinflation/i, confidence: 0.99 },
+    { id: "hypercapnia-pair", find: /\bhypocalcemia\b/gi, replace: "hypercapnia", when: /hypocalcemia[\s\S]{0,120}Cadmium means carbon dioxide/i, confidence: 0.99 },
+    { id: "capnia-pair", find: /\bCadmium\b/gi, replace: "Capnia", when: /hypocalcemia[\s\S]{0,120}Cadmium means carbon dioxide/i, confidence: 0.99 },
+    { id: "acidosis-garbled", find: /\bacetone sits\b/gi, replace: "acidosis", when: /acid-?base|pH|alkalosis|bicarbonate/i, confidence: 0.99 },
+    { id: "alkalosis-garbled", find: /\bit'?s a cannot take\b/gi, replace: "we call it alkalosis", when: /acid-?base|pH|acidosis|bicarbonate/i, confidence: 0.98 },
+    { id: "hypoventilation-retains", find: /\bhyperventilation keeps the carbon dioxide\b/gi, replace: "hypoventilation retains carbon dioxide", when: /acid-?base|respiratory|compens/i, confidence: 0.99 },
+    { id: "pneumothorax-tags", find: /\bno more (?:tags?|tracks?)\b/gi, replace: "pneumothorax", when: /pneumothorax|pleural cavity|collapsed lung/i, confidence: 0.99 },
+    { id: "bradykinin", find: /\bBrando priming\b/gi, replace: "bradykinin", when: /ARDS|histamine|cytokine/i, confidence: 0.99 },
+    { id: "hyaline-membrane", find: /\bhigher name memory\b/gi, replace: "hyaline membrane", when: /ARDS|alveol|protein/i, confidence: 0.99 },
+    { id: "peep-expansion", find: /\bpositive in explanatory pressure\b/gi, replace: "positive end-expiratory pressure", when: /PEEP|ventilator|ARDS/i, confidence: 0.99 },
+    { id: "bowmans-capsule", find: /\b(?:Balmain|involvement|blue minus|vomit) capsule\b/gi, replace: "Bowman's capsule", when: /kidney|renal|nephron|glomerul|urine/i, confidence: 0.99 },
+    { id: "bowmans-blue-minus", find: /\binside the blue minus\b/gi, replace: "inside Bowman's capsule", when: /kidney|renal|nephron|glomerul|urine/i, confidence: 0.98 },
+    { id: "proximal-tubule", find: /\bproximal (?:to balance|oculus|in turbulence)\b/gi, replace: "proximal tubule", when: /kidney|renal|nephron|glomerul|urine/i, confidence: 0.98 },
+    { id: "loop-of-henle", find: /\bloop of (?:Henry|enemy|only)\b/gi, replace: "loop of Henle", when: /kidney|renal|nephron|glomerul|urine/i, confidence: 0.99 },
+    { id: "distal-tubule", find: /\b(?:restart to release|distant two minutes|distal two minutes|less than two bullets)\b/gi, replace: "distal tubules", when: /kidney|renal|nephron|glomerul|urine/i, confidence: 0.97 },
+    { id: "glomerulus-garbled", find: /\b(?:gloominess|glomus)\b/gi, replace: "glomerulus", when: /kidney|renal|nephron|capillary|urine/i, confidence: 0.98 },
+    { id: "afferent-intro", find: /\bthis so called a friend(?: are telling a friend)?\b/gi, replace: "the afferent arteriole", when: /kidney|renal|nephron|glomerul/i, confidence: 0.98 },
+    { id: "afferent-through", find: /\bthrough the a friend\b/gi, replace: "through the afferent arteriole", when: /kidney|renal|nephron|glomerul/i, confidence: 0.99 },
+    { id: "afferent-have", find: /\bYou have a friend\b/gi, replace: "You have the afferent arteriole", when: /kidney|renal|nephron|glomerul/i, confidence: 0.97 },
+    { id: "detrusor-muscle", find: /\bWeakening the troops in muscle\b/gi, replace: "The detrusor muscle", when: /bladder|urethra|urine/i, confidence: 0.98 },
+    { id: "nitrogenous-waste", find: /\bnitrogen based methods\b/gi, replace: "nitrogenous waste products", when: /kidney|renal|urea|uric acid/i, confidence: 0.98 },
+    { id: "reabsorbing-vessels", find: /\bobserving into the blood vessels\b/gi, replace: "reabsorbing into the blood vessels", when: /kidney|renal|filtration|tubular/i, confidence: 0.98 },
+    { id: "filtration-issue", find: /\brefraction issue\b/gi, replace: "filtration issue", when: /kidney|renal|filtration|reabsorption/i, confidence: 0.99 },
+    { id: "holy-grail", find: /\bholy green on Hatha physiology\b/gi, replace: "holy grail of pathophysiology", when: /kidney|renal|urine|filtration/i, confidence: 0.97 },
+    { id: "low-urine-output", find: /\blow during output\b/gi, replace: "low urine output", when: /kidney|renal|urine|filtration/i, confidence: 0.99 },
+    { id: "urine-production", find: /\b(?:no unit production|too much during production)\b/gi, replace: match => /no unit/i.test(match) ? "no urine production" : "too much urine production", when: /kidney|renal|urine|filtration/i, confidence: 0.98 },
+    { id: "blood-volume", find: /\bhigh blood loss\b/gi, replace: "high blood volume", when: /no urine|low urine|preload|kidney/i, confidence: 0.99 },
+    { id: "cardiac-output", find: /\bProject output\b/gi, replace: "cardiac output", when: /stroke volume|blood pressure|preload/i, confidence: 0.99 },
+    { id: "urine-liters", find: /\b1 to 2 million\b/gi, replace: "1 to 2 liters", when: /urinate|urine output|800ml|2000/i, confidence: 0.99 },
+    { id: "urine-milliliters", find: /\b800ml to 2000mg\b/gi, replace: "800 mL to 2000 mL", when: /urinate|urine output|kidney/i, confidence: 0.99 },
+    { id: "hematuria", find: /\bUTM\b/g, replace: "hematuria", when: /red blood cells in (?:the )?urine/i, confidence: 0.97 },
+    { id: "leukopenia", find: /\bcall pinyon\b/gi, replace: "leukopenia", when: /low white blood cells|white blood cells in the blood/i, confidence: 0.97 },
+    { id: "hypoalbuminemia", find: /\bhypo and B anemia\b/gi, replace: "hypoalbuminemia", when: /low protein|proteinuria|blood/i, confidence: 0.98 },
+    { id: "uremic-syndrome", find: /\bremix syndrome\b/gi, replace: "uremic syndrome", when: /kidney|renal|urea|BUN/i, confidence: 0.99 },
+    { id: "chronic-pruritus", find: /\bchronic back items\b/gi, replace: "chronic pruritus", when: /urea|sweat glands|skin/i, confidence: 0.97 },
+    { id: "serum-creatinine", find: /\bserum platinum\b/gi, replace: "serum creatinine", when: /GFR|kidney|renal|filtration/i, confidence: 0.99 },
+    { id: "bun", find: /\bserum un\b/gi, replace: "BUN", when: /GFR|kidney|renal|filtration/i, confidence: 0.99 },
+    { id: "gfr-unit", find: /\b(?:120 milligram|120,000,000l) per minute\b/gi, replace: "120 mL/min", when: /GFR|glomerular filtration|kidney/i, confidence: 0.99 },
+    { id: "oliguria-unit", find: /\bless than 400 milligram\b/gi, replace: "less than 400 mL per day", when: /urine output|kidney|renal/i, confidence: 0.99 },
+    { id: "three-hour-urine", find: /\b(?:six minutes|16 millimeter)\b/gi, replace: "60 mL", when: /three hours|24 hours|urine output/i, confidence: 0.98 },
+    { id: "aki-output-rate", find: /\b0\.5 meaning that a kilogram in six hours\b/gi, replace: "0.5 mL/kg/hr for six hours", when: /urine output|kidney injury|kidney failure/i, confidence: 0.99 },
+    { id: "aki-math", find: /\b650 times six\b/gi, replace: "50 times six", when: /100 times 0\.5|300 in 6 hours/i, confidence: 0.99 },
+    { id: "rule-of-thumb", find: /\bright thumb metal\b/gi, replace: "rule-of-thumb method", when: /kidney|urine output|diagnostic/i, confidence: 0.98 }
   ];
 
   // Terms found to be common speech-to-text confusions in real nursing
@@ -225,6 +271,16 @@
       find: /\bcannot take\b/i,
       when: /acid-?base|pH|acidosis|bicarbonate/i,
       message: "“Cannot take” near acid-base language may be a mis-transcription of “alkalosis.” Verify against the lecture."
+    },
+    {
+      find: /\b(?:incoming postural|postural lateral|quantity of the wound|big money|Lupron urea|basement and toxin|GFR or 20|Funny Men)\b/i,
+      when: /kidney|renal|nephron|glomerul|urine/i,
+      message: "One or more kidney anatomy/laboratory phrases remain ambiguous after cleanup. Compare the cleaned lecture content with the slide before studying it."
+    },
+    {
+      find: /\b(?:200|70%|30%|0\.5|400|2000|GFR)\b/i,
+      when: /kidney|renal|nephron|glomerul|urine output/i,
+      message: "This kidney lecture contains filtration, urine-output, or AKI numbers. Verify every value and unit against the lecture slide."
     },
     {
       find: /\bARDS\b/,
@@ -604,9 +660,11 @@
     const corrections = [];
     for (const rule of activeRules) {
       rule.find.lastIndex = 0;
-      value = value.replace(rule.find, match => {
-        corrections.push({ rule: rule.id, original: match, replacement: rule.replace, numeric: Boolean(rule.numeric) });
-        return rule.replace;
+      value = value.replace(rule.find, (...args) => {
+        const match = args[0];
+        const replacement = typeof rule.replace === "function" ? rule.replace(match) : rule.replace;
+        corrections.push({ rule: rule.id, original: match, replacement, numeric: Boolean(rule.numeric) });
+        return replacement;
       });
     }
     return { text: value, corrections };
@@ -665,10 +723,22 @@
   // ---------------------------------------------------------------------
 
   function classifySentence(text) {
+    // A dismissed topic is not a section announcement. In real lectures a
+    // professor often says "we're not going through treatment" immediately
+    // before changing subjects; keyword-only classification otherwise puts
+    // the entire next topic under a false Treatment heading.
+    if (/\b(?:not (?:going to|gonna|covering|discussing)|won't|will not)\b.{0,45}\b(?:go through|cover|discuss|review)\b/i.test(text)) {
+      return null;
+    }
+    if (/\bwaste management (?:company|companies)\b/i.test(text)) return null;
     for (const rule of SECTION_RULES) {
       if (rule.test.test(text)) return rule.id;
     }
     return null;
+  }
+
+  function dismissesPreviousTopic(text) {
+    return /\b(?:not (?:going to|gonna)|won't|will not)\s+(?:go through|cover|discuss|review)\s+(?:it|that|this)\b/i.test(text);
   }
 
   function extractEnumeration(sentence) {
@@ -677,7 +747,7 @@
     const lead = match[1].trim();
     const tail = match[2].replace(/\.$/, "").trim();
     const items = tail.split(/,\s*(?:and\s+)?|\s+and\s+/).map(s => s.trim()).filter(Boolean);
-    if (items.length >= 3 && items.every(item => item.length > 0 && item.length <= 60 && !/[.!?]$/.test(item))) {
+    if (items.length >= 3 && items.every(item => item.length > 0 && item.length <= 60 && !/[.!?]$/.test(item) && !/^(?:into|from|of|and|or)\b/i.test(item))) {
       return { lead, items };
     }
     return null;
@@ -714,7 +784,13 @@
     const sections = [];
     let current = null;
     const confirmedOrdinals = computeConfirmedOrdinals(sentences);
-    const categories = sentences.map(item => (item.structural ? null : classifySentence(item.text)));
+    const categories = sentences.map((item, index) => {
+      if (item.structural) return null;
+      const category = classifySentence(item.text);
+      const next = sentences[index + 1];
+      if (category && next && !next.structural && dismissesPreviousTopic(next.text)) return null;
+      return category;
+    });
 
     function ensureSection(headingId) {
       if (current && current.categoryId === headingId) return current;
@@ -904,13 +980,48 @@
   // ---------------------------------------------------------------------
 
   function generateFilename(title) {
-    const safe = String(title || "Cleaned Lecture")
+    return `${safeFilenameBase(title)}_Cleaned.md`;
+  }
+
+  function safeFilenameBase(title) {
+    return String(title || "Cleaned Lecture")
       .replace(/[\\/:*?"<>|]+/g, "")
       .replace(/[^A-Za-z0-9 _-]+/g, "")
       .trim()
       .replace(/\s+/g, "_")
       .slice(0, 90) || "Cleaned_Lecture";
-    return `${safe}_Cleaned.md`;
+  }
+
+  function generateReviewFilename(title) {
+    return `${safeFilenameBase(title)}_Final_Review.txt`;
+  }
+
+  // A single upload-ready file for the optional final pass. Keeping the raw
+  // transcript beside the cleaned draft lets the reviewer verify medical
+  // terms, negations, numbers and units instead of guessing from the draft.
+  function generateReviewPackage({ title, cleanedMarkdown, originalTranscript, warnings = [] }) {
+    const reviewNotes = warnings.length
+      ? warnings.map(item => `- ${item}`).join("\n")
+      : "- No automatic warnings were generated. Still verify medical terminology, numbers, units and negations.";
+    return [
+      "LECTURE CLEANER — FINAL REVIEW FILE",
+      `Title: ${String(title || "Cleaned Lecture").trim() || "Cleaned Lecture"}`,
+      "",
+      "REVIEW INSTRUCTIONS",
+      "Compare the cleaned draft with the original Panopto transcript. Correct remaining medical speech-to-text errors and formatting problems without adding unsupported facts. Preserve all numbers, units, negations and professor-emphasized exam points. Return only the finalized lecture note.",
+      "",
+      "AUTOMATIC REVIEW NOTES",
+      reviewNotes,
+      "",
+      "========== CLEANED DRAFT ==========",
+      String(cleanedMarkdown || "").trim(),
+      "",
+      "========== ORIGINAL PANOPTO TRANSCRIPT ==========",
+      String(originalTranscript || "").trim(),
+      "",
+      "========== END ==========",
+      ""
+    ].join("\n");
   }
 
   // ---------------------------------------------------------------------
@@ -1021,6 +1132,7 @@
     stripOldExportWrapper, stripPanoptoChromeBlock,
     reconstructSentences, splitIntoSentences, removeFillers, selectActiveMedicalRules, applyMedicalRules, findReviewFlags, normalizePunctuation,
     detectSections, inferTitle, detectPanoptoTitle, cleanTitleText, generateMarkdown, generateFilename,
+    generateReviewFilename, generateReviewPackage,
     validateResult, PROTECTED_TERMS
   };
 });
